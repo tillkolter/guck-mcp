@@ -142,6 +142,18 @@ Start with **stats**, then **search**, and only **tail** if needed:
 
 This keeps prompts short and avoids flooding the model with irrelevant logs.
 
+## Debugging strategy (recommended)
+
+Use Hunch as a tight loop to avoid log spam and wasted tokens:
+
+1) **Scope** with `hunch.stats` (short time window, service/session).
+2) **Inspect** with `hunch.search` for errors/warns or a specific boundary.
+3) **Hypothesize** the failing stage or component.
+4) **Instrument** only the boundary (entry/exit, inputs/outputs).
+5) **Re-run** and re-query the same narrow window.
+
+This keeps investigations focused while still enabling deep, iterative debugging.
+
 ## Redaction
 
 Hunch applies redaction on **write** and on **read** using configured key names
