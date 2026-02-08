@@ -8,6 +8,12 @@ export type HunchSource = {
   line?: number;
 };
 
+export type HunchSdkConfig = {
+  enabled: boolean;
+  capture_stdout: boolean;
+  capture_stderr: boolean;
+};
+
 export type HunchEvent = {
   id: string;
   ts: string;
@@ -29,6 +35,7 @@ export type HunchConfig = {
   enabled: boolean;
   store_dir: string;
   default_service: string;
+  sdk: HunchSdkConfig;
   redaction: {
     enabled: boolean;
     keys: string[];

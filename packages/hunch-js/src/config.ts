@@ -1,12 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
-import { HunchConfig } from "./schema.js";
+import { HunchConfig, HunchSdkConfig } from "./schema.js";
 
 const DEFAULT_CONFIG: HunchConfig = {
   version: 1,
   enabled: true,
   store_dir: "logs/hunch",
   default_service: "hunch",
+  sdk: {
+    enabled: true,
+    capture_stdout: true,
+    capture_stderr: true,
+  },
   redaction: {
     enabled: true,
     keys: ["authorization", "api_key", "token", "secret", "password"],
@@ -57,10 +62,21 @@ export const findRepoRoot = (startDir: string): string => {
   }
 };
 
+const mergeSdkConfig = (
+  base: HunchSdkConfig,
+  override?: Partial<HunchSdkConfig>,
+): HunchSdkConfig => {
+  return {
+    ...base,
+    ...(override ?? {}),
+  };
+};
+
 const mergeConfig = (base: HunchConfig, override: Partial<HunchConfig>): HunchConfig => {
   return {
     ...base,
     ...override,
+    sdk: mergeSdkConfig(base.sdk, override.sdk),
     redaction: {
       ...base.redaction,
       ...(override.redaction ?? {}),

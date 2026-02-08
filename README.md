@@ -25,6 +25,35 @@ hunch wrap --service debate-room --session room-123 -- pnpm run dev
 hunch mcp
 ```
 
+## SDK auto-capture (no CLI)
+
+Import the side-effect entrypoint to capture stdout/stderr as plain-text events:
+
+```ts
+import "hunch/auto";
+```
+
+Each line becomes a Hunch event:
+
+- `type`: `stdout` or `stderr`
+- `level`: `info` (stdout) or `error` (stderr)
+- `message`: the line content
+
+Disable or scope auto-capture in `.hunch.json`:
+
+```json
+{
+  "sdk": {
+    "enabled": false,
+    "capture_stdout": false,
+    "capture_stderr": true
+  }
+}
+```
+
+If you use `hunch wrap`, auto-capture is disabled for the wrapped process to
+avoid double-ingest.
+
 ## Monorepo layout
 
 - `packages/hunch-js` — JS SDK + CLI
@@ -91,6 +120,11 @@ For MCP usage across multiple repos, each tool accepts an optional
   "enabled": true,
   "store_dir": "logs/hunch",
   "default_service": "ais-avatars",
+  "sdk": {
+    "enabled": true,
+    "capture_stdout": true,
+    "capture_stderr": true
+  },
   "redaction": {
     "enabled": true,
     "keys": ["authorization","api_key","token","secret","password"],

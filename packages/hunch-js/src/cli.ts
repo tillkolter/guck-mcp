@@ -145,6 +145,7 @@ const handleWrap = async (argv: string[]): Promise<number> => {
       ...process.env,
       HUNCH_RUN_ID: runId,
       HUNCH_SERVICE: service,
+      HUNCH_WRAPPED: "1",
       ...(session ? { HUNCH_SESSION_ID: session } : {}),
     },
   });
