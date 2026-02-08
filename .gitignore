@@ -1,0 +1,7 @@
+node_modules/
+dist/
+coverage/
+logs/
+.hunch.json
+.hunch.local.json
+.DS_Store
