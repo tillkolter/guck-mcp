@@ -11,11 +11,15 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "scripts",
+    "src",
+    "tsconfig.json"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "node scripts/ensure-deps.mjs && tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
+    "prepare": "pnpm run build",
     "test": "pnpm run build"
   },
   "engines": {
@@ -23,7 +27,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.26.0",
-    "grpr-core": "workspace:*"
+    "grpr-core": "github:tillkolter/grpr-mcp#path:packages/grpr-core"
   },
   "devDependencies": {
     "@types/node": "25.2.2"
