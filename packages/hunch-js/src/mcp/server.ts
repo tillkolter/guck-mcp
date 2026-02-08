@@ -88,9 +88,9 @@ const buildText = (payload: unknown) => {
 const resolveSince = (
   input: string | undefined,
   config: HunchConfig,
-  rootDir: string,
+  storeDir: string,
 ): string => {
-  const checkpointMs = readCheckpoint(rootDir);
+  const checkpointMs = readCheckpoint(storeDir);
   if (input) {
     if (input === "checkpoint") {
       if (checkpointMs !== undefined) {
@@ -163,7 +163,7 @@ export const startMcpServer = async (): Promise<void> => {
       const { config_path: _configPath, ...filters } = input;
       const withDefaults: HunchSearchParams = {
         ...filters,
-        since: resolveSince(filters.since, config, rootDir),
+        since: resolveSince(filters.since, config, storeDir),
       };
       const result = await searchEvents(storeDir, config, withDefaults);
       const redacted = result.events.map((event) => redactEvent(config, event));
@@ -175,7 +175,7 @@ export const startMcpServer = async (): Promise<void> => {
       const { config_path: _configPath, ...filters } = input;
       const withDefaults: HunchStatsParams = {
         ...filters,
-        since: resolveSince(filters.since, config, rootDir),
+        since: resolveSince(filters.since, config, storeDir),
       };
       const result = await statsEvents(storeDir, config, withDefaults);
       return buildText(result);
@@ -186,7 +186,7 @@ export const startMcpServer = async (): Promise<void> => {
       const { config_path: _configPath, ...filters } = input;
       const withDefaults: HunchSessionsParams = {
         ...filters,
-        since: resolveSince(filters.since, config, rootDir),
+        since: resolveSince(filters.since, config, storeDir),
       };
       const result = await listSessions(storeDir, config, withDefaults);
       return buildText(result);
@@ -196,7 +196,7 @@ export const startMcpServer = async (): Promise<void> => {
       const input = (request.params.arguments ?? {}) as HunchTailParams;
       const { config_path: _configPath, ...filters } = input;
       const limit = input.limit ?? Math.min(config.mcp.max_results, 50);
-      const since = resolveSince(undefined, config, rootDir);
+      const since = resolveSince(undefined, config, storeDir);
       const result = await searchEvents(storeDir, config, {
         service: filters.service,
         session_id: filters.session_id,

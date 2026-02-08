@@ -110,9 +110,10 @@ For MCP usage across multiple repos, each tool accepts an optional
 
 ### Checkpoint
 
-`hunch checkpoint` writes a `.hunch-checkpoint` file next to your `.hunch.json`
-containing an epoch millisecond timestamp. When MCP tools are called without
-`since`, Hunch uses the checkpoint timestamp as the default time window. You
+`hunch checkpoint` writes a `.hunch-checkpoint` file in the root of your
+`store_dir` (the log folder) containing an epoch millisecond timestamp. When
+MCP tools are called without `since`, Hunch uses the checkpoint timestamp as
+the default time window. You
 can also pass `since: "checkpoint"` to explicitly anchor a query to the
 checkpoint.
 

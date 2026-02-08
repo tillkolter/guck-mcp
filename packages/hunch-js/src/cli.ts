@@ -246,8 +246,9 @@ const main = async (): Promise<void> => {
   }
 
   if (command === "checkpoint") {
-    const { rootDir } = loadConfig();
-    const checkpointPath = resolveCheckpointPath(rootDir);
+    const { rootDir, config } = loadConfig();
+    const storeDir = resolveStoreDir(config, rootDir);
+    const checkpointPath = resolveCheckpointPath(storeDir);
     const value = Date.now();
     fs.writeFileSync(checkpointPath, `${value}\n`, "utf8");
     process.stdout.write(`${value}\n`);

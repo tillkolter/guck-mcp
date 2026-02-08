@@ -132,12 +132,12 @@ export const loadConfig = (options: LoadConfigOptions = {}): LoadedConfig => {
   };
 };
 
-export const resolveCheckpointPath = (rootDir: string): string => {
-  return path.join(rootDir, ".hunch-checkpoint");
+export const resolveCheckpointPath = (storeDir: string): string => {
+  return path.join(storeDir, ".hunch-checkpoint");
 };
 
-export const readCheckpoint = (rootDir: string): number | undefined => {
-  const checkpointPath = resolveCheckpointPath(rootDir);
+export const readCheckpoint = (storeDir: string): number | undefined => {
+  const checkpointPath = resolveCheckpointPath(storeDir);
   if (!isDirOrFile(checkpointPath)) {
     return undefined;
   }
