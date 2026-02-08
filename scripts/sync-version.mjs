@@ -16,3 +16,6 @@ const updateJsonVersion = (filePath) => {
 
 updateJsonVersion(path.join(root, "package.json"));
 updateJsonVersion(path.join(root, "packages", "hunch-js", "package.json"));
+updateJsonVersion(path.join(root, "packages", "hunch-cli", "package.json"));
+updateJsonVersion(path.join(root, "packages", "hunch-core", "package.json"));
+updateJsonVersion(path.join(root, "packages", "hunch-mcp", "package.json"));

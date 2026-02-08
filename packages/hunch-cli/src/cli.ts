@@ -9,12 +9,12 @@ import {
   getDefaultConfig,
   findRepoRoot,
   resolveCheckpointPath,
-} from "./config.js";
-import { redactEvent } from "./redact.js";
-import { appendEvent } from "./store/file-store.js";
-import { HunchEvent, HunchLevel } from "./schema.js";
-import { emit } from "./sdk/emit.js";
-import { startMcpServer } from "./mcp/server.js";
+  redactEvent,
+  appendEvent,
+} from "hunch-core";
+import { HunchEvent, HunchLevel } from "hunch-core";
+import { emit } from "hunch";
+import { startMcpServer } from "hunch-mcp";
 
 const printHelp = (): void => {
   console.log(`Hunch - MCP-first telemetry\n\nCommands:\n  init                 Create .hunch.json and .hunch.local.json\n  checkpoint           Write a .hunch-checkpoint epoch timestamp\n  wrap --service <s> --session <id> -- <cmd...>\n                       Capture stdout/stderr and write JSONL\n  emit --service <s> --session <id>\n                       Read JSON events from stdin and append\n  mcp                  Start MCP server\n`);

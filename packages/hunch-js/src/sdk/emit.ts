@@ -1,8 +1,12 @@
 import { randomUUID } from "node:crypto";
-import { loadConfig, resolveStoreDir } from "../config.js";
-import { redactEvent } from "../redact.js";
-import { appendEvent } from "../store/file-store.js";
-import { HunchEvent, HunchLevel } from "../schema.js";
+import {
+  appendEvent,
+  HunchEvent,
+  HunchLevel,
+  loadConfig,
+  redactEvent,
+  resolveStoreDir,
+} from "hunch-core";
 
 let cached:
   | {

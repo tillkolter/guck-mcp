@@ -1,17 +1,14 @@
-# Hunch (JS SDK + CLI)
+# Hunch (JS SDK)
 
 Hunch is a tiny, MCP-first telemetry store for AI debugging. This package
-includes the JS SDK and CLI.
+includes the JS SDK.
 
 For full docs, see the repo README.
 
 ## Install
 
-```sh
-pnpm add -g hunch
-# or
-npx hunch mcp
-```
+This package is intended to be used from the monorepo workspace.
+For the CLI (`hunch ...`), use `hunch-cli`.
 
 ## Quick start
 
