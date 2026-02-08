@@ -95,8 +95,11 @@ export const loadConfig = (cwd: string = process.cwd()): LoadedConfig => {
   const configPath = explicitConfig ?? path.join(rootDir, ".hunch.json");
   const localConfigPath = path.join(rootDir, ".hunch.local.json");
 
-  const configJson = readJsonFile(configPath);
-  const localJson = readJsonFile(localConfigPath);
+  const configExists = isDirOrFile(configPath);
+  const localExists = isDirOrFile(localConfigPath);
+
+  const configJson = configExists ? readJsonFile(configPath) : null;
+  const localJson = localExists ? readJsonFile(localConfigPath) : null;
 
   let config = DEFAULT_CONFIG;
 
@@ -106,6 +109,10 @@ export const loadConfig = (cwd: string = process.cwd()): LoadedConfig => {
 
   if (localJson && typeof localJson === "object") {
     config = mergeConfig(config, localJson as Partial<HunchConfig>);
+  }
+
+  if (!configExists && !explicitConfig) {
+    config = { ...config, enabled: false };
   }
 
   const envEnabled = parseBool(process.env.HUNCH_ENABLED);
@@ -123,8 +130,8 @@ export const loadConfig = (cwd: string = process.cwd()): LoadedConfig => {
 
   return {
     rootDir,
-    configPath: configJson ? configPath : undefined,
-    localConfigPath: localJson ? localConfigPath : undefined,
+    configPath: configExists ? configPath : undefined,
+    localConfigPath: localExists ? localConfigPath : undefined,
     config,
   };
 };

@@ -122,6 +122,12 @@ export const startMcpServer = async (): Promise<void> => {
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { config, rootDir } = loadConfig();
+    if (!config.enabled) {
+      return buildText({
+        error:
+          "Hunch is disabled. Create .hunch.json or set HUNCH_ENABLED=true/HUNCH_CONFIG.",
+      });
+    }
     const storeDir = resolveStoreDir(config, rootDir);
 
     if (request.params.name === "hunch.search") {
