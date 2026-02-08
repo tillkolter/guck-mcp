@@ -87,14 +87,27 @@ def _parse_bool(value: Optional[str]) -> Optional[bool]:
 
 
 def load_config(*, cwd: Optional[str] = None, config_path: Optional[str] = None) -> LoadedConfig:
-    working_dir = cwd or os.getcwd()
-    explicit_config = config_path or os.environ.get("HUNCH_CONFIG_PATH")
+    working_dir = (
+        cwd
+        or os.environ.get("HUNCH_CWD")
+        or os.environ.get("INIT_CWD")
+        or os.getcwd()
+    )
+    explicit_config = config_path or os.environ.get("HUNCH_CONFIG")
     if explicit_config:
-        root_dir = str(Path(explicit_config).resolve().parent)
+        resolved_explicit = Path(explicit_config)
+        if not resolved_explicit.is_absolute():
+            resolved_explicit = Path(working_dir) / resolved_explicit
+        resolved_explicit = resolved_explicit.resolve()
+        if resolved_explicit.is_dir():
+            root_dir = str(resolved_explicit)
+            resolved_config_path = resolved_explicit / ".hunch.json"
+        else:
+            root_dir = str(resolved_explicit.parent)
+            resolved_config_path = resolved_explicit
     else:
         root_dir = find_repo_root(working_dir)
-
-    resolved_config_path = Path(explicit_config) if explicit_config else Path(root_dir) / ".hunch.json"
+        resolved_config_path = Path(root_dir) / ".hunch.json"
     config_exists = _is_dir_or_file(resolved_config_path)
     config_json = _read_json_file(resolved_config_path) if config_exists else None
 
