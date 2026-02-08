@@ -103,10 +103,6 @@ export const loadConfig = (cwd: string = process.cwd()): LoadedConfig => {
   }
 
 
-  if (!configExists) {
-    config = { ...config, enabled: false };
-  }
-
   const envEnabled = parseBool(process.env.HUNCH_ENABLED);
   if (envEnabled !== undefined) {
     config = { ...config, enabled: envEnabled };

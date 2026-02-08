@@ -56,9 +56,9 @@ hunch mcp
 
 Hunch reads `.hunch.json` from your repo root.
 
-Hunch is **disabled by default** unless `.hunch.json` exists or `HUNCH_CONFIG`
-points at an existing config file. You can also set `"enabled": false` inside the
-config to turn it off explicitly.
+Hunch is **enabled by default** using built-in defaults. Add a `.hunch.json` or
+set `HUNCH_CONFIG` to override settings. You can also set `"enabled": false`
+inside the config to turn it off explicitly.
 
 ```json
 {
