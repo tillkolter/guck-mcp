@@ -11,10 +11,13 @@ Hunch is designed to be:
 ## Install
 
 ```sh
-pnpm add -g hunch
+pnpm add -g hunch-cli
 # or
-npx hunch mcp
+npx hunch-cli
 ```
+
+Note: the `hunch` command is provided by `hunch-cli`. If you already have the
+unrelated npm `hunch` installed globally, uninstall it first.
 
 ## Quick start
 
@@ -27,7 +30,10 @@ hunch mcp
 
 ## Monorepo layout
 
-- `packages/hunch-js` — JS SDK + CLI
+- `packages/hunch-cli` — CLI (wrap/emit/checkpoint/mcp)
+- `packages/hunch-core` — shared config/types/store/redaction
+- `packages/hunch-js` — JS SDK
+- `packages/hunch-mcp` — MCP server
 - `packages/hunch-py` — Python SDK
 - `specs` — shared contract fixtures for parity tests
 

@@ -14,6 +14,36 @@ if (pkg.version !== version) {
   );
 }
 
+const cliPkg = JSON.parse(
+  fs.readFileSync(path.join(root, "packages", "hunch-cli", "package.json"), "utf8"),
+);
+
+if (cliPkg.version !== version) {
+  throw new Error(
+    `Version mismatch: VERSION=${version} packages/hunch-cli/package.json=${cliPkg.version}`,
+  );
+}
+
+const corePkg = JSON.parse(
+  fs.readFileSync(path.join(root, "packages", "hunch-core", "package.json"), "utf8"),
+);
+
+if (corePkg.version !== version) {
+  throw new Error(
+    `Version mismatch: VERSION=${version} packages/hunch-core/package.json=${corePkg.version}`,
+  );
+}
+
+const mcpPkg = JSON.parse(
+  fs.readFileSync(path.join(root, "packages", "hunch-mcp", "package.json"), "utf8"),
+);
+
+if (mcpPkg.version !== version) {
+  throw new Error(
+    `Version mismatch: VERSION=${version} packages/hunch-mcp/package.json=${mcpPkg.version}`,
+  );
+}
+
 const pyproject = fs.readFileSync(
   path.join(root, "packages", "hunch-py", "pyproject.toml"),
   "utf8",

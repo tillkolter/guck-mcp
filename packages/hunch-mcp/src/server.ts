@@ -4,20 +4,20 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { loadConfig, readCheckpoint, resolveStoreDir } from "../config.js";
-import { redactEvent } from "../redact.js";
 import {
   HunchConfig,
   HunchSearchParams,
   HunchSessionsParams,
   HunchStatsParams,
   HunchTailParams,
-} from "../schema.js";
-import {
   listSessions,
+  loadConfig,
+  readCheckpoint,
+  redactEvent,
+  resolveStoreDir,
   searchEvents,
   statsEvents,
-} from "../store/file-store.js";
+} from "hunch-core";
 
 const SEARCH_SCHEMA = {
   type: "object",

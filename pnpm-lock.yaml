@@ -8,11 +8,46 @@ importers:
 
   .: {}
 
+  packages/hunch-cli:
+    dependencies:
+      hunch:
+        specifier: workspace:*
+        version: link:../hunch-js
+      hunch-core:
+        specifier: workspace:*
+        version: link:../hunch-core
+      hunch-mcp:
+        specifier: workspace:*
+        version: link:../hunch-mcp
+    devDependencies:
+      '@types/node':
+        specifier: 25.2.2
+        version: 25.2.2
+
+  packages/hunch-core:
+    devDependencies:
+      '@types/node':
+        specifier: 25.2.2
+        version: 25.2.2
+
   packages/hunch-js:
+    dependencies:
+      hunch-core:
+        specifier: workspace:*
+        version: link:../hunch-core
+    devDependencies:
+      '@types/node':
+        specifier: 25.2.2
+        version: 25.2.2
+
+  packages/hunch-mcp:
     dependencies:
       '@modelcontextprotocol/sdk':
         specifier: 1.26.0
         version: 1.26.0(zod@4.3.6)
+      hunch-core:
+        specifier: workspace:*
+        version: link:../hunch-core
     devDependencies:
       '@types/node':
         specifier: 25.2.2
