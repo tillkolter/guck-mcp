@@ -8,12 +8,16 @@
     "grpr": "dist/cli.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "scripts",
+    "src",
+    "tsconfig.json"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "node scripts/ensure-deps.mjs && tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
     "dev": "node --watch dist/cli.js",
+    "prepare": "pnpm run build",
     "test": "pnpm run build"
   },
   "engines": {

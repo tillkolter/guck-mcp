@@ -11,11 +11,14 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "src",
+    "tsconfig.json"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
+    "prepare": "pnpm run build",
     "test": "pnpm run build"
   },
   "engines": {

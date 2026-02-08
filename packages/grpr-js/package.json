@@ -15,13 +15,16 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "scripts",
+    "src",
+    "tsconfig.json"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "node scripts/ensure-deps.mjs && tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
     "test": "pnpm run build && node --test test/*.test.js",
-    "prepare": "pnpm --filter grpr-core build && pnpm run build"
+    "prepare": "pnpm run build"
   },
   "engines": {
     "node": ">=18"
