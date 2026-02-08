@@ -93,13 +93,8 @@ export const loadConfig = (cwd: string = process.cwd()): LoadedConfig => {
     : findRepoRoot(cwd);
 
   const configPath = explicitConfig ?? path.join(rootDir, ".hunch.json");
-  const localConfigPath = path.join(rootDir, ".hunch.local.json");
-
   const configExists = isDirOrFile(configPath);
-  const localExists = isDirOrFile(localConfigPath);
-
   const configJson = configExists ? readJsonFile(configPath) : null;
-  const localJson = localExists ? readJsonFile(localConfigPath) : null;
 
   let config = DEFAULT_CONFIG;
 
@@ -107,9 +102,6 @@ export const loadConfig = (cwd: string = process.cwd()): LoadedConfig => {
     config = mergeConfig(config, configJson as Partial<HunchConfig>);
   }
 
-  if (localJson && typeof localJson === "object") {
-    config = mergeConfig(config, localJson as Partial<HunchConfig>);
-  }
 
   if (!configExists) {
     config = { ...config, enabled: false };
@@ -131,7 +123,7 @@ export const loadConfig = (cwd: string = process.cwd()): LoadedConfig => {
   return {
     rootDir,
     configPath: configExists ? configPath : undefined,
-    localConfigPath: localExists ? localConfigPath : undefined,
+    localConfigPath: undefined,
     config,
   };
 };

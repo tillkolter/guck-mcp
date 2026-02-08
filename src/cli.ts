@@ -43,7 +43,6 @@ const parseArgs = (argv: string[]) => {
 
 const writeInitFiles = (rootDir: string): void => {
   const configPath = path.join(rootDir, ".hunch.json");
-  const localPath = path.join(rootDir, ".hunch.local.json");
   const defaultConfig = getDefaultConfig();
   const repoName = path.basename(rootDir);
   const seededConfig = {
@@ -56,13 +55,6 @@ const writeInitFiles = (rootDir: string): void => {
     console.log(`Created ${configPath}`);
   } else {
     console.log(`Config already exists: ${configPath}`);
-  }
-
-  if (!fs.existsSync(localPath)) {
-    fs.writeFileSync(localPath, JSON.stringify({}, null, 2));
-    console.log(`Created ${localPath}`);
-  } else {
-    console.log(`Local config already exists: ${localPath}`);
   }
 };
 

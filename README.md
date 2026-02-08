@@ -27,12 +27,11 @@ hunch mcp
 
 ## Config
 
-Hunch reads `.hunch.json` from your repo root. Optional overrides live in
-`.hunch.local.json` (git-ignored).
+Hunch reads `.hunch.json` from your repo root.
 
 Hunch is **disabled by default** unless `.hunch.json` exists or `HUNCH_CONFIG`
-points at an existing config file. You can also set `"enabled": false` inside the config
-to turn it off explicitly.
+points at an existing config file. You can also set `"enabled": false` inside the
+config to turn it off explicitly.
 
 ```json
 {
@@ -92,7 +91,7 @@ logs/hunch/<service>/<YYYY-MM-DD>/<run_id>.jsonl
 Hunch’s CLI is intentionally minimal. It exists to **capture** and **serve**
 telemetry; filtering is MCP-first.
 
-- `hunch init` — create `.hunch.json` and `.hunch.local.json`
+- `hunch init` — create `.hunch.json`
 - `hunch wrap --service <name> --session <id> -- <cmd...>` — capture stdout/stderr
 - `hunch emit --service <name> --session <id>` — append JSON events from stdin
 - `hunch mcp` — start MCP server
