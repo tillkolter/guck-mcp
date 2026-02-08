@@ -4,9 +4,10 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { loadConfig, resolveStoreDir } from "../config.js";
+import { loadConfig, readCheckpoint, resolveStoreDir } from "../config.js";
 import { redactEvent } from "../redact.js";
 import {
+  HunchConfig,
   HunchSearchParams,
   HunchSessionsParams,
   HunchStatsParams,
@@ -84,6 +85,27 @@ const buildText = (payload: unknown) => {
   };
 };
 
+const resolveSince = (
+  input: string | undefined,
+  config: HunchConfig,
+  rootDir: string,
+): string => {
+  const checkpointMs = readCheckpoint(rootDir);
+  if (input) {
+    if (input === "checkpoint") {
+      if (checkpointMs !== undefined) {
+        return new Date(checkpointMs).toISOString();
+      }
+      return `${config.mcp.default_lookback_ms}ms`;
+    }
+    return input;
+  }
+  if (checkpointMs !== undefined) {
+    return new Date(checkpointMs).toISOString();
+  }
+  return `${config.mcp.default_lookback_ms}ms`;
+};
+
 export const startMcpServer = async (): Promise<void> => {
   const server = new Server(
     {
@@ -131,7 +153,7 @@ export const startMcpServer = async (): Promise<void> => {
     if (!config.enabled) {
       return buildText({
         error:
-          "Hunch is disabled. Create .hunch.json or set HUNCH_ENABLED=true/HUNCH_CONFIG.",
+          "Hunch is disabled. Create .hunch.json or set HUNCH_ENABLED=true/HUNCH_CONFIG_PATH.",
       });
     }
     const storeDir = resolveStoreDir(config, rootDir);
@@ -141,7 +163,7 @@ export const startMcpServer = async (): Promise<void> => {
       const { config_path: _configPath, ...filters } = input;
       const withDefaults: HunchSearchParams = {
         ...filters,
-        since: filters.since ?? `${config.mcp.default_lookback_ms}ms`,
+        since: resolveSince(filters.since, config, rootDir),
       };
       const result = await searchEvents(storeDir, config, withDefaults);
       const redacted = result.events.map((event) => redactEvent(config, event));
@@ -153,7 +175,7 @@ export const startMcpServer = async (): Promise<void> => {
       const { config_path: _configPath, ...filters } = input;
       const withDefaults: HunchStatsParams = {
         ...filters,
-        since: filters.since ?? `${config.mcp.default_lookback_ms}ms`,
+        since: resolveSince(filters.since, config, rootDir),
       };
       const result = await statsEvents(storeDir, config, withDefaults);
       return buildText(result);
@@ -164,7 +186,7 @@ export const startMcpServer = async (): Promise<void> => {
       const { config_path: _configPath, ...filters } = input;
       const withDefaults: HunchSessionsParams = {
         ...filters,
-        since: filters.since ?? `${config.mcp.default_lookback_ms}ms`,
+        since: resolveSince(filters.since, config, rootDir),
       };
       const result = await listSessions(storeDir, config, withDefaults);
       return buildText(result);
@@ -174,10 +196,12 @@ export const startMcpServer = async (): Promise<void> => {
       const input = (request.params.arguments ?? {}) as HunchTailParams;
       const { config_path: _configPath, ...filters } = input;
       const limit = input.limit ?? Math.min(config.mcp.max_results, 50);
+      const since = resolveSince(undefined, config, rootDir);
       const result = await searchEvents(storeDir, config, {
         service: filters.service,
         session_id: filters.session_id,
         run_id: filters.run_id,
+        since,
         limit: config.mcp.max_results,
       });
 

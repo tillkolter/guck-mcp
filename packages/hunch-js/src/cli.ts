@@ -3,7 +3,13 @@ import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
-import { loadConfig, resolveStoreDir, getDefaultConfig, findRepoRoot } from "./config.js";
+import {
+  loadConfig,
+  resolveStoreDir,
+  getDefaultConfig,
+  findRepoRoot,
+  resolveCheckpointPath,
+} from "./config.js";
 import { redactEvent } from "./redact.js";
 import { appendEvent } from "./store/file-store.js";
 import { HunchEvent, HunchLevel } from "./schema.js";
@@ -11,7 +17,7 @@ import { emit } from "./sdk/emit.js";
 import { startMcpServer } from "./mcp/server.js";
 
 const printHelp = (): void => {
-  console.log(`Hunch - MCP-first telemetry\n\nCommands:\n  init                 Create .hunch.json and .hunch.local.json\n  wrap --service <s> --session <id> -- <cmd...>\n                       Capture stdout/stderr and write JSONL\n  emit --service <s> --session <id>\n                       Read JSON events from stdin and append\n  mcp                  Start MCP server\n`);
+  console.log(`Hunch - MCP-first telemetry\n\nCommands:\n  init                 Create .hunch.json and .hunch.local.json\n  checkpoint           Write a .hunch-checkpoint epoch timestamp\n  wrap --service <s> --session <id> -- <cmd...>\n                       Capture stdout/stderr and write JSONL\n  emit --service <s> --session <id>\n                       Read JSON events from stdin and append\n  mcp                  Start MCP server\n`);
 };
 
 const parseArgs = (argv: string[]) => {
@@ -236,6 +242,15 @@ const main = async (): Promise<void> => {
   if (command === "emit") {
     const exitCode = await handleEmit(argv.slice(1));
     process.exitCode = exitCode;
+    return;
+  }
+
+  if (command === "checkpoint") {
+    const { rootDir } = loadConfig();
+    const checkpointPath = resolveCheckpointPath(rootDir);
+    const value = Date.now();
+    fs.writeFileSync(checkpointPath, `${value}\n`, "utf8");
+    process.stdout.write(`${value}\n`);
     return;
   }
 

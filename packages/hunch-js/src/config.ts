@@ -93,7 +93,9 @@ type LoadConfigOptions = {
 
 export const loadConfig = (options: LoadConfigOptions = {}): LoadedConfig => {
   const cwd = options.cwd ?? process.cwd();
-  const explicitConfig = options.configPath ?? process.env.HUNCH_CONFIG;
+  const explicitConfig =
+    options.configPath ??
+    process.env.HUNCH_CONFIG_PATH;
   const rootDir = explicitConfig
     ? path.dirname(path.resolve(explicitConfig))
     : findRepoRoot(cwd);
@@ -128,6 +130,30 @@ export const loadConfig = (options: LoadConfigOptions = {}): LoadedConfig => {
     localConfigPath: undefined,
     config,
   };
+};
+
+export const resolveCheckpointPath = (rootDir: string): string => {
+  return path.join(rootDir, ".hunch-checkpoint");
+};
+
+export const readCheckpoint = (rootDir: string): number | undefined => {
+  const checkpointPath = resolveCheckpointPath(rootDir);
+  if (!isDirOrFile(checkpointPath)) {
+    return undefined;
+  }
+  try {
+    const raw = fs.readFileSync(checkpointPath, "utf8").trim();
+    if (!/^\d+$/.test(raw)) {
+      return undefined;
+    }
+    const value = Number(raw);
+    if (!Number.isFinite(value)) {
+      return undefined;
+    }
+    return value < 1e12 ? value * 1000 : value;
+  } catch {
+    return undefined;
+  }
 };
 
 export const resolveStoreDir = (config: HunchConfig, rootDir: string): string => {

@@ -79,7 +79,7 @@ hunch mcp
 Hunch reads `.hunch.json` from your repo root.
 
 Hunch is **enabled by default** using built-in defaults. Add a `.hunch.json` or
-set `HUNCH_CONFIG` to override settings. You can also set `"enabled": false`
+set `HUNCH_CONFIG_PATH` to override settings. You can also set `"enabled": false`
 inside the config to turn it off explicitly.
 
 For MCP usage across multiple repos, each tool accepts an optional
@@ -101,12 +101,20 @@ For MCP usage across multiple repos, each tool accepts an optional
 ```
 
 ### Environment overrides
-- `HUNCH_CONFIG` — explicit config path
+- `HUNCH_CONFIG_PATH` — explicit config path
 - `HUNCH_DIR` — store dir override
 - `HUNCH_ENABLED` — true/false
 - `HUNCH_SERVICE` — service name
 - `HUNCH_SESSION_ID` — session override
 - `HUNCH_RUN_ID` — run id override
+
+### Checkpoint
+
+`hunch checkpoint` writes a `.hunch-checkpoint` file next to your `.hunch.json`
+containing an epoch millisecond timestamp. When MCP tools are called without
+`since`, Hunch uses the checkpoint timestamp as the default time window. You
+can also pass `since: "checkpoint"` to explicitly anchor a query to the
+checkpoint.
 
 ## Event schema (JSONL)
 
@@ -144,6 +152,7 @@ Hunch’s CLI is intentionally minimal. It exists to **capture** and **serve**
 telemetry; filtering is MCP-first.
 
 - `hunch init` — create `.hunch.json`
+- `hunch checkpoint` — write `.hunch-checkpoint` epoch timestamp
 - `hunch wrap --service <name> --session <id> -- <cmd...>` — capture stdout/stderr
 - `hunch emit --service <name> --session <id>` — append JSON events from stdin
 - `hunch mcp` — start MCP server
@@ -198,7 +207,7 @@ The optional SDK simply adds conveniences like `run_id` and redaction.
       "command": "hunch",
       "args": ["mcp"],
       "env": {
-        "HUNCH_CONFIG": "/path/to/.hunch.json"
+        "HUNCH_CONFIG_PATH": "/path/to/.hunch.json"
       }
     }
   }
