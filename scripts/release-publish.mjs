@@ -20,7 +20,7 @@ const run = (cmd, args, cwd = root) => {
 run("pnpm", ["-r", "build"]);
 
 for (const pkg of jsPackages) {
-  run("npm", ["publish", "--access", "public"], pkg.dir);
+  run("npm", ["publish", "--access", "public", "--provenance"], pkg.dir);
 }
 
 run("python", ["-m", "build"], pyDir);
