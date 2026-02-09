@@ -15,6 +15,25 @@ let cached:
     }
   | undefined;
 
+let writeDisabled = false;
+let warned = false;
+
+const isWriteError = (error: unknown): boolean => {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+  const code = (error as { code?: string }).code;
+  return code === "EACCES" || code === "EPERM" || code === "EROFS";
+};
+
+const warnOnce = (message: string): void => {
+  if (warned) {
+    return;
+  }
+  warned = true;
+  process.stderr.write(`${message}\n`);
+};
+
 const defaultRunId = process.env.GUCK_RUN_ID ?? randomUUID();
 const defaultSessionId = process.env.GUCK_SESSION_ID;
 
@@ -68,11 +87,28 @@ const getCached = () => {
 };
 
 export const emit = async (input: Partial<GuckEvent>): Promise<void> => {
+  if (writeDisabled) {
+    return;
+  }
   const { storeDir, config } = getCached();
   if (!config.enabled) {
     return;
   }
   const event = toEvent(input, { service: config.default_service });
   const redacted = redactEvent(config, event);
-  await appendEvent(storeDir, redacted);
+  try {
+    await appendEvent(storeDir, redacted);
+  } catch (error) {
+    if (process.env.GUCK_STRICT_WRITE_ERRORS === "1") {
+      throw error;
+    }
+    if (isWriteError(error)) {
+      writeDisabled = true;
+      warnOnce(
+        "[guck] write disabled (permission error); set GUCK_STRICT_WRITE_ERRORS=1 to fail hard",
+      );
+      return;
+    }
+    throw error;
+  }
 };

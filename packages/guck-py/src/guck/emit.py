@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import errno
 import os
+import sys
 import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
@@ -11,6 +13,8 @@ from .schema import GuckEvent, GuckLevel
 from .store import append_event
 
 _cached: Optional[Dict[str, Any]] = None
+_write_disabled = False
+_warned = False
 
 _DEFAULT_RUN_ID = os.environ.get("GUCK_RUN_ID") or str(uuid.uuid4())
 _DEFAULT_SESSION_ID = os.environ.get("GUCK_SESSION_ID")
@@ -76,10 +80,27 @@ def _get_cached() -> Dict[str, Any]:
 
 
 def emit(input_event: Dict[str, Any]) -> None:
+    global _write_disabled, _warned
+    if _write_disabled:
+        return
     cached = _get_cached()
     config = cached["config"]
     if not config["enabled"]:
         return
     event = _to_event(input_event, {"service": config["default_service"]})
     redacted = redact_event(config, event)
-    append_event(cached["store_dir"], redacted)
+    try:
+        append_event(cached["store_dir"], redacted)
+    except OSError as exc:
+        if os.environ.get("GUCK_STRICT_WRITE_ERRORS") == "1":
+            raise
+        if exc.errno in {errno.EACCES, errno.EPERM, errno.EROFS}:
+            _write_disabled = True
+            if not _warned:
+                _warned = True
+                sys.stderr.write(
+                    "[guck] write disabled (permission error); set "
+                    "GUCK_STRICT_WRITE_ERRORS=1 to fail hard\n"
+                )
+            return
+        raise
