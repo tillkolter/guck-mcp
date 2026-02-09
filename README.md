@@ -1,9 +1,9 @@
-# Grpr
+# Guck
 
-Grpr is a tiny, MCP-first telemetry store for AI debugging. It captures JSONL
+Guck is a tiny, MCP-first telemetry store for AI debugging. It captures JSONL
 telemetry events and exposes a minimal MCP toolset for fast, filtered queries.
 
-Grpr is designed to be:
+Guck is designed to be:
 - **Language-agnostic**: emit JSONL from any runtime
 - **Filter-first**: no default tailing; MCP tools focus on targeted queries
 - **Low-friction**: small optional SDK, simple `wrap` CLI for stdout/stderr
@@ -11,44 +11,50 @@ Grpr is designed to be:
 ## Install
 
 ```sh
-pnpm add -g grpr-cli
+pnpm add -g guck-cli
 # or
-npx grpr-cli
+npx guck-cli
 ```
 
-Note: the `grpr` command is provided by `grpr-cli`. If you already have the
-unrelated npm `grpr` installed globally, uninstall it first.
+Note: the `guck` command is provided by `guck-cli`. If you already have the
+unrelated npm `guck` installed globally, uninstall it first.
 
 ## Quick start
 
 ```sh
-grpr init
-grpr wrap --service debate-room --session room-123 -- pnpm run dev
+guck init
+guck wrap --service debate-room --session room-123 -- pnpm run dev
 # in another terminal
-grpr mcp
+guck mcp
 ```
 
 ## Monorepo layout
 
-- `packages/grpr-cli` — CLI (wrap/emit/checkpoint/mcp)
-- `packages/grpr-core` — shared config/types/store/redaction
-- `packages/grpr-js` — JS SDK
-- `packages/grpr-mcp` — MCP server
-- `packages/grpr-py` — Python SDK
+- `packages/guck-cli` — CLI (wrap/emit/checkpoint/mcp)
+- `packages/guck-core` — shared config/types/store/redaction
+- `packages/guck-js` — JS SDK
+- `packages/guck-mcp` — MCP server
+- `packages/guck-py` — Python SDK
 - `specs` — shared contract fixtures for parity tests
 
 ## Python SDK (preview)
 
+PyPI install:
+
+```sh
+pip install guck-sdk
+```
+
 Local dev install:
 
 ```sh
-uv pip install -e packages/grpr-py
+uv pip install -e packages/guck-py
 ```
 
 Usage:
 
 ```py
-from grpr import emit
+from guck import emit
 
 emit({"message": "hello from python"})
 ```
@@ -57,12 +63,12 @@ emit({"message": "hello from python"})
 
 1) Add local config (ignored by git):
 
-`.grpr.json`
+`.guck.json`
 ```json
 {
   "version": 1,
   "enabled": true,
-  "store_dir": "logs/grpr",
+  "store_dir": "logs/guck",
   "default_service": "my-service"
 }
 ```
@@ -70,32 +76,32 @@ emit({"message": "hello from python"})
 2) Add one line to AGENTS.md:
 
 ```
-When debugging, use Grpr telemetry first (grpr.stats → grpr.search; tail only if asked).
+When debugging, use Guck telemetry first (guck.stats → guck.search; tail only if asked).
 ```
 
 3) Run:
 
 ```sh
-grpr wrap --service my-service --session dev-1 -- <your command>
-grpr mcp
+guck wrap --service my-service --session dev-1 -- <your command>
+guck mcp
 ```
 
 ## Config
 
-Grpr reads `.grpr.json` from your repo root.
+Guck reads `.guck.json` from your repo root.
 
-Grpr is **enabled by default** using built-in defaults. Add a `.grpr.json` or
-set `GRPR_CONFIG_PATH` to override settings. You can also set `"enabled": false`
+Guck is **enabled by default** using built-in defaults. Add a `.guck.json` or
+set `GUCK_CONFIG_PATH` to override settings. You can also set `"enabled": false`
 inside the config to turn it off explicitly.
 
 For MCP usage across multiple repos, each tool accepts an optional
-`config_path` parameter to point at a specific `.grpr.json`.
+`config_path` parameter to point at a specific `.guck.json`.
 
 ```json
 {
   "version": 1,
   "enabled": true,
-  "store_dir": "logs/grpr",
+  "store_dir": "logs/guck",
   "default_service": "ais-avatars",
   "redaction": {
     "enabled": true,
@@ -108,19 +114,40 @@ For MCP usage across multiple repos, each tool accepts an optional
 
 Remote backends (CloudWatch/K8s) require optional SDK installs; install only if you use them.
 
+### JS SDK auto-capture (stdout/stderr)
+
+The JS SDK can patch `process.stdout` and `process.stderr` to emit Guck events.
+Enable it early in your app startup:
+
+```ts
+import "guck/auto";
+// or
+import { installAutoCapture } from "guck";
+installAutoCapture();
+```
+
+Config toggles:
+
+```json
+{ "sdk": { "enabled": true, "capture_stdout": true, "capture_stderr": true } }
+```
+
+If you're using `guck wrap`, the CLI sets `GUCK_WRAPPED=1` and the SDK
+auto-capture intentionally skips to avoid double logging.
+
 ### Environment overrides
-- `GRPR_CONFIG_PATH` — explicit config path
-- `GRPR_DIR` — store dir override
-- `GRPR_ENABLED` — true/false
-- `GRPR_SERVICE` — service name
-- `GRPR_SESSION_ID` — session override
-- `GRPR_RUN_ID` — run id override
+- `GUCK_CONFIG_PATH` — explicit config path
+- `GUCK_DIR` — store dir override
+- `GUCK_ENABLED` — true/false
+- `GUCK_SERVICE` — service name
+- `GUCK_SESSION_ID` — session override
+- `GUCK_RUN_ID` — run id override
 
 ### Checkpoint
 
-`grpr checkpoint` writes a `.grpr-checkpoint` file in the root of your
+`guck checkpoint` writes a `.guck-checkpoint` file in the root of your
 `store_dir` (the log folder) containing an epoch millisecond timestamp. When
-MCP tools are called without `since`, Grpr uses the checkpoint timestamp as
+MCP tools are called without `since`, Guck uses the checkpoint timestamp as
 the default time window. You
 can also pass `since: "checkpoint"` to explicitly anchor a query to the
 checkpoint.
@@ -149,48 +176,48 @@ Each line in the log is a single JSON event:
 
 ## Store layout
 
-By default, Grpr writes per-run JSONL files:
+By default, Guck writes per-run JSONL files:
 
 ```
-logs/grpr/<service>/<YYYY-MM-DD>/<run_id>.jsonl
+logs/guck/<service>/<YYYY-MM-DD>/<run_id>.jsonl
 ```
 
 ## Minimal CLI
 
-Grpr’s CLI is intentionally minimal. It exists to **capture** and **serve**
+Guck’s CLI is intentionally minimal. It exists to **capture** and **serve**
 telemetry; filtering is MCP-first.
 
-- `grpr init` — create `.grpr.json`
-- `grpr checkpoint` — write `.grpr-checkpoint` epoch timestamp
-- `grpr wrap --service <name> --session <id> -- <cmd...>` — capture stdout/stderr
-- `grpr emit --service <name> --session <id>` — append JSON events from stdin
-- `grpr mcp` — start MCP server
+- `guck init` — create `.guck.json`
+- `guck checkpoint` — write `.guck-checkpoint` epoch timestamp
+- `guck wrap --service <name> --session <id> -- <cmd...>` — capture stdout/stderr
+- `guck emit --service <name> --session <id>` — append JSON events from stdin
+- `guck mcp` — start MCP server
 
 ## MCP tools
 
-Grpr exposes these MCP tools (filter-first):
+Guck exposes these MCP tools (filter-first):
 
-- `grpr.search`
-- `grpr.stats`
-- `grpr.sessions`
-- `grpr.tail` (available, but not default in docs)
+- `guck.search`
+- `guck.stats`
+- `guck.sessions`
+- `guck.tail` (available, but not default in docs)
 
 ## AI usage guidance
 
 Start with **stats**, then **search**, and only **tail** if needed:
 
-1) `grpr.stats` with a narrow time window
-2) `grpr.search` for relevant types/levels/messages
-3) `grpr.tail` only when live-streaming is required
+1) `guck.stats` with a narrow time window
+2) `guck.search` for relevant types/levels/messages
+3) `guck.tail` only when live-streaming is required
 
 This keeps prompts short and avoids flooding the model with irrelevant logs.
 
 ## Debugging strategy (recommended)
 
-Use Grpr as a tight loop to avoid log spam and wasted tokens:
+Use Guck as a tight loop to avoid log spam and wasted tokens:
 
-1) **Scope** with `grpr.stats` (short time window, service/session).
-2) **Inspect** with `grpr.search` for errors/warns or a specific boundary.
+1) **Scope** with `guck.stats` (short time window, service/session).
+2) **Inspect** with `guck.search` for errors/warns or a specific boundary.
 3) **Hypothesize** the failing stage or component.
 4) **Instrument** only the boundary (entry/exit, inputs/outputs).
 5) **Re-run** and re-query the same narrow window.
@@ -199,12 +226,12 @@ This keeps investigations focused while still enabling deep, iterative debugging
 
 ## Redaction
 
-Grpr applies redaction on **write** and on **read** using configured key names
+Guck applies redaction on **write** and on **read** using configured key names
 and regex patterns.
 
 ## Compatibility
 
-Any language can emit Grpr events by writing JSONL lines to the store.
+Any language can emit Guck events by writing JSONL lines to the store.
 The optional SDK simply adds conveniences like `run_id` and redaction.
 
 ## MCP server config example
@@ -212,11 +239,11 @@ The optional SDK simply adds conveniences like `run_id` and redaction.
 ```json
 {
   "mcpServers": {
-    "grpr": {
-      "command": "grpr",
+    "guck": {
+      "command": "guck",
       "args": ["mcp"],
       "env": {
-        "GRPR_CONFIG_PATH": "/path/to/.grpr.json"
+        "GUCK_CONFIG_PATH": "/path/to/.guck.json"
       }
     }
   }
@@ -226,4 +253,4 @@ The optional SDK simply adds conveniences like `run_id` and redaction.
 ## License
 
 MIT
-# grpr
+# guck
