@@ -15,7 +15,7 @@ const updateJsonVersion = (filePath) => {
 };
 
 updateJsonVersion(path.join(root, "package.json"));
-updateJsonVersion(path.join(root, "packages", "grpr-js", "package.json"));
-updateJsonVersion(path.join(root, "packages", "grpr-cli", "package.json"));
-updateJsonVersion(path.join(root, "packages", "grpr-core", "package.json"));
-updateJsonVersion(path.join(root, "packages", "grpr-mcp", "package.json"));
+updateJsonVersion(path.join(root, "packages", "guck-js", "package.json"));
+updateJsonVersion(path.join(root, "packages", "guck-cli", "package.json"));
+updateJsonVersion(path.join(root, "packages", "guck-core", "package.json"));
+updateJsonVersion(path.join(root, "packages", "guck-mcp", "package.json"));

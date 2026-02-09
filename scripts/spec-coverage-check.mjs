@@ -40,14 +40,14 @@ for (const specFile of specFiles) {
   const jsTestPath = path.join(
     rootDir,
     "packages",
-    "grpr-js",
+    "guck-js",
     "test",
     `${suite}.contract.test.js`,
   );
   const pyTestPath = path.join(
     rootDir,
     "packages",
-    "grpr-py",
+    "guck-py",
     "tests",
     `test_${suite}_contract.py`,
   );

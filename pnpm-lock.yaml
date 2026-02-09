@@ -5,31 +5,31 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  grpr: workspace:*
-  grpr-core: workspace:*
-  grpr-mcp: workspace:*
+  guck: workspace:*
+  guck-core: workspace:*
+  guck-mcp: workspace:*
 
 importers:
 
   .: {}
 
-  packages/grpr-cli:
+  packages/guck-cli:
     dependencies:
-      grpr:
+      guck:
         specifier: workspace:*
-        version: link:../grpr-js
-      grpr-core:
+        version: link:../guck-js
+      guck-core:
         specifier: workspace:*
-        version: link:../grpr-core
-      grpr-mcp:
+        version: link:../guck-core
+      guck-mcp:
         specifier: workspace:*
-        version: link:../grpr-mcp
+        version: link:../guck-mcp
     devDependencies:
       '@types/node':
         specifier: 25.2.2
         version: 25.2.2
 
-  packages/grpr-core:
+  packages/guck-core:
     optionalDependencies:
       '@aws-sdk/client-cloudwatch-logs':
         specifier: 3.985.0
@@ -45,24 +45,24 @@ importers:
         specifier: 25.2.2
         version: 25.2.2
 
-  packages/grpr-js:
+  packages/guck-js:
     dependencies:
-      grpr-core:
+      guck-core:
         specifier: workspace:*
-        version: link:../grpr-core
+        version: link:../guck-core
     devDependencies:
       '@types/node':
         specifier: 25.2.2
         version: 25.2.2
 
-  packages/grpr-mcp:
+  packages/guck-mcp:
     dependencies:
       '@modelcontextprotocol/sdk':
         specifier: 1.26.0
         version: 1.26.0(zod@4.3.6)
-      grpr-core:
+      guck-core:
         specifier: workspace:*
-        version: link:../grpr-core
+        version: link:../guck-core
     devDependencies:
       '@types/node':
         specifier: 25.2.2

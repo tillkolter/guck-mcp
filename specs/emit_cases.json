@@ -2,12 +2,12 @@
   {
     "name": "defaults",
     "env": {
-      "GRPR_RUN_ID": "run-111"
+      "GUCK_RUN_ID": "run-111"
     },
     "config": {
       "version": 1,
       "enabled": true,
-      "store_dir": "logs/grpr",
+      "store_dir": "logs/guck",
       "default_service": "svc-default",
       "redaction": {
         "enabled": true,
@@ -33,13 +33,13 @@
   {
     "name": "invalid-level-and-session-env",
     "env": {
-      "GRPR_RUN_ID": "run-222",
-      "GRPR_SESSION_ID": "sess-1"
+      "GUCK_RUN_ID": "run-222",
+      "GUCK_SESSION_ID": "sess-1"
     },
     "config": {
       "version": 1,
       "enabled": true,
-      "store_dir": "logs/grpr",
+      "store_dir": "logs/guck",
       "default_service": "svc-default",
       "redaction": {
         "enabled": true,
@@ -70,13 +70,13 @@
   {
     "name": "service-env-override",
     "env": {
-      "GRPR_RUN_ID": "run-333",
-      "GRPR_SERVICE": "env-service"
+      "GUCK_RUN_ID": "run-333",
+      "GUCK_SERVICE": "env-service"
     },
     "config": {
       "version": 1,
       "enabled": true,
-      "store_dir": "logs/grpr",
+      "store_dir": "logs/guck",
       "default_service": "cfg-service",
       "redaction": {
         "enabled": true,
@@ -105,12 +105,12 @@
   {
     "name": "redaction",
     "env": {
-      "GRPR_RUN_ID": "run-444"
+      "GUCK_RUN_ID": "run-444"
     },
     "config": {
       "version": 1,
       "enabled": true,
-      "store_dir": "logs/grpr",
+      "store_dir": "logs/guck",
       "default_service": "svc-default",
       "redaction": {
         "enabled": true,
@@ -155,12 +155,12 @@
   {
     "name": "disabled",
     "env": {
-      "GRPR_RUN_ID": "run-555"
+      "GUCK_RUN_ID": "run-555"
     },
     "config": {
       "version": 1,
       "enabled": false,
-      "store_dir": "logs/grpr",
+      "store_dir": "logs/guck",
       "default_service": "svc-default",
       "redaction": {
         "enabled": true,
@@ -180,7 +180,7 @@
   {
     "name": "store-dir-override",
     "env": {
-      "GRPR_RUN_ID": "run-666"
+      "GUCK_RUN_ID": "run-666"
     },
     "config": {
       "version": 1,
