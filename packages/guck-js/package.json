@@ -2,6 +2,10 @@
   "name": "@guckdev/sdk",
   "version": "0.1.0",
   "description": "Guck JS SDK",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tillkolter/guck-mcp.git"
+  },
   "license": "MIT",
   "type": "module",
   "exports": {
