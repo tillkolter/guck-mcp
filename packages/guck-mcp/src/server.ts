@@ -18,7 +18,7 @@ import {
   readTail,
   redactEvent,
   resolveStoreDir,
-} from "guck-core";
+} from "@guckdev/core";
 const SEARCH_SCHEMA = {
   type: "object",
   additionalProperties: false,

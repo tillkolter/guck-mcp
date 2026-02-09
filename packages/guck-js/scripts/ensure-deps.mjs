@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
-const dep = { name: "guck-core", entry: "dist/index.js" };
+const dep = { name: "@guckdev/core", entry: "dist/index.js" };
 
 const npmExecPath = process.env.npm_execpath;
 const run = (cwd, args) => {

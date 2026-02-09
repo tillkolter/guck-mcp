@@ -11,12 +11,12 @@ Guck is designed to be:
 ## Install
 
 ```sh
-pnpm add -g guck-cli
+pnpm add -g @guckdev/cli
 # or
-npx guck-cli
+npx @guckdev/cli
 ```
 
-Note: the `guck` command is provided by `guck-cli`. If you already have the
+Note: the `guck` command is provided by `@guckdev/cli`. If you already have the
 unrelated npm `guck` installed globally, uninstall it first.
 
 ## Quick start
@@ -120,9 +120,9 @@ The JS SDK can patch `process.stdout` and `process.stderr` to emit Guck events.
 Enable it early in your app startup:
 
 ```ts
-import "guck/auto";
+import "@guckdev/sdk/auto";
 // or
-import { installAutoCapture } from "guck";
+import { installAutoCapture } from "@guckdev/sdk";
 installAutoCapture();
 ```
 

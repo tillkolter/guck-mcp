@@ -1,5 +1,5 @@
 {
-  "name": "guck",
+  "name": "@guckdev/sdk",
   "version": "0.1.0",
   "description": "Guck JS SDK",
   "license": "MIT",
@@ -20,6 +20,9 @@
     "src",
     "tsconfig.json"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "node scripts/ensure-deps.mjs && tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
@@ -30,7 +33,7 @@
     "node": ">=18"
   },
   "dependencies": {
-    "guck-core": "github:tillkolter/guck-mcp#path:packages/guck-core"
+    "@guckdev/core": "0.1.0"
   },
   "devDependencies": {
     "@types/node": "25.2.2"

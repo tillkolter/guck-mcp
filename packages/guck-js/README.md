@@ -8,7 +8,7 @@ For full docs, see the repo README.
 ## Install
 
 This package is intended to be used from the monorepo workspace.
-For the CLI (`guck ...`), use `guck-cli`.
+For the CLI (`guck ...`), use `@guckdev/cli`.
 
 ## Quick start
 
@@ -25,9 +25,9 @@ Enable auto-capture early in your app startup to patch `process.stdout` and
 `process.stderr` and emit Guck events:
 
 ```ts
-import "guck/auto";
+import "@guckdev/sdk/auto";
 // or
-import { installAutoCapture } from "guck";
+import { installAutoCapture } from "@guckdev/sdk";
 installAutoCapture();
 ```
 

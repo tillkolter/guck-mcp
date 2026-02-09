@@ -1,5 +1,5 @@
 {
-  "name": "guck-core",
+  "name": "@guckdev/core",
   "version": "0.1.0",
   "description": "Core utilities and types for Guck telemetry",
   "license": "MIT",
@@ -15,6 +15,9 @@
     "src",
     "tsconfig.json"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",

@@ -6,7 +6,7 @@ import {
   loadConfig,
   redactEvent,
   resolveStoreDir,
-} from "guck-core";
+} from "@guckdev/core";
 
 let cached:
   | {

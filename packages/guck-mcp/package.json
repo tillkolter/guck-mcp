@@ -1,5 +1,5 @@
 {
-  "name": "guck-mcp",
+  "name": "@guckdev/mcp",
   "version": "0.1.0",
   "description": "MCP server for Guck telemetry",
   "license": "MIT",
@@ -16,6 +16,9 @@
     "src",
     "tsconfig.json"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "node scripts/ensure-deps.mjs && tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
@@ -27,7 +30,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.26.0",
-    "guck-core": "github:tillkolter/guck-mcp#path:packages/guck-core"
+    "@guckdev/core": "0.1.0"
   },
   "devDependencies": {
     "@types/node": "25.2.2"

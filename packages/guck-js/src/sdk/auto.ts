@@ -1,5 +1,5 @@
 import { emit } from "./emit.js";
-import { GuckEvent, loadConfig } from "guck-core";
+import { GuckEvent, loadConfig } from "@guckdev/core";
 
 type StopHandle = { stop: () => void };
 
