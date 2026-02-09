@@ -13,6 +13,8 @@ Guck is designed to be:
 ```sh
 pnpm add -g @guckdev/cli
 # or
+npm install -g @guckdev/cli
+# or
 npx @guckdev/cli
 ```
 
