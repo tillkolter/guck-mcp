@@ -11,10 +11,10 @@ import {
   resolveCheckpointPath,
   redactEvent,
   appendEvent,
-} from "guck-core";
-import { GuckEvent, GuckLevel } from "guck-core";
-import { emit } from "guck";
-import { startMcpServer } from "guck-mcp";
+} from "@guckdev/core";
+import { GuckEvent, GuckLevel } from "@guckdev/core";
+import { emit } from "@guckdev/sdk";
+import { startMcpServer } from "@guckdev/mcp";
 
 const printHelp = (): void => {
   console.log(`Guck - MCP-first telemetry\n\nCommands:\n  init                 Create .guck.json and .guck.local.json\n  checkpoint           Write a .guck-checkpoint epoch timestamp\n  wrap --service <s> --session <id> -- <cmd...>\n                       Capture stdout/stderr and write JSONL\n  emit --service <s> --session <id>\n                       Read JSON events from stdin and append\n  mcp                  Start MCP server\n`);

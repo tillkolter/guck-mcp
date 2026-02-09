@@ -2,6 +2,7 @@ node_modules/
 dist/
 coverage/
 logs/
+.codex/
 .hunch.json
 .hunch.local.json
 .DS_Store

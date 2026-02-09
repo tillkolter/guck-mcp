@@ -3,9 +3,9 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 
 const deps = [
-  { name: "guck-core", entry: "dist/index.js" },
-  { name: "guck", entry: "dist/index.js" },
-  { name: "guck-mcp", entry: "dist/index.js" },
+  { name: "@guckdev/core", entry: "dist/index.js" },
+  { name: "@guckdev/sdk", entry: "dist/index.js" },
+  { name: "@guckdev/mcp", entry: "dist/index.js" },
 ];
 
 const npmExecPath = process.env.npm_execpath;

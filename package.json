@@ -8,13 +8,21 @@
     "test:py": "cd packages/guck-py && uv run pytest",
     "spec:check": "node scripts/spec-coverage-check.mjs",
     "version:sync": "node scripts/sync-version.mjs",
-    "version:check": "node scripts/version-check.mjs"
+    "version:check": "node scripts/version-check.mjs",
+    "release": "semantic-release"
+  },
+  "devDependencies": {
+    "@semantic-release/commit-analyzer": "^12.0.0",
+    "@semantic-release/exec": "^6.0.0",
+    "@semantic-release/github": "^10.0.0",
+    "@semantic-release/release-notes-generator": "^13.0.0",
+    "semantic-release": "^24.0.0"
   },
   "pnpm": {
     "overrides": {
-      "guck": "workspace:*",
-      "guck-core": "workspace:*",
-      "guck-mcp": "workspace:*"
+      "@guckdev/sdk": "workspace:*",
+      "@guckdev/core": "workspace:*",
+      "@guckdev/mcp": "workspace:*"
     }
   }
 }

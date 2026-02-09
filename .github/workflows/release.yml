@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  release:
+    name: "Release"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install pnpm
+        run: corepack prepare pnpm@9.12.3 --activate
+
+      - name: Upgrade npm (OIDC support)
+        run: npm install -g npm@11.5.1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install JS deps (pnpm install)
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Python build deps
+        run: python -m pip install --upgrade build
+
+      - name: Release
+        run: pnpm exec semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for PyPI artifacts
+        id: pypi_dist
+        run: |
+          if [ -d packages/guck-py/dist ] && [ "$(ls -A packages/guck-py/dist)" ]; then
+            echo "has_dist=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_dist=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish to PyPI (trusted publishing)
+        if: steps.pypi_dist.outputs.has_dist == 'true'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: packages/guck-py/dist
