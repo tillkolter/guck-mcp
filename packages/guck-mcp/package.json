@@ -2,6 +2,10 @@
   "name": "@guckdev/mcp",
   "version": "0.1.0",
   "description": "MCP server for Guck telemetry",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tillkolter/guck-mcp"
+  },
   "license": "MIT",
   "type": "module",
   "exports": {
