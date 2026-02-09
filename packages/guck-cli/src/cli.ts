@@ -17,7 +17,96 @@ import { emit } from "@guckdev/sdk";
 import { startMcpServer } from "@guckdev/mcp";
 
 const printHelp = (): void => {
-  console.log(`Guck - MCP-first telemetry\n\nCommands:\n  init                 Create .guck.json and .guck.local.json\n  checkpoint           Write a .guck-checkpoint epoch timestamp\n  wrap --service <s> --session <id> -- <cmd...>\n                       Capture stdout/stderr and write JSONL\n  emit --service <s> --session <id>\n                       Read JSON events from stdin and append\n  mcp                  Start MCP server\n`);
+  console.log(
+    `Guck - MCP-first telemetry\n\nCommands:\n  init                 Create .guck.json and .guck.local.json\n  checkpoint           Write a .guck-checkpoint epoch timestamp\n  wrap --service <s> --session <id> -- <cmd...>\n                       Capture stdout/stderr and write JSONL\n  emit --service <s> --session <id>\n                       Read JSON events from stdin and append\n  mcp                  Start MCP server\n  upgrade              Update the @guckdev/cli install\n\nOptions:\n  --version, -v        Print version\n`,
+  );
+};
+
+const loadVersion = (): string | null => {
+  try {
+    const pkgUrl = new URL("../package.json", import.meta.url);
+    const raw = fs.readFileSync(pkgUrl, "utf8");
+    const parsed = JSON.parse(raw) as { version?: unknown };
+    return typeof parsed.version === "string" && parsed.version.trim().length > 0
+      ? parsed.version
+      : null;
+  } catch {
+    return null;
+  }
+};
+
+const printVersion = (): void => {
+  const version = loadVersion();
+  if (!version) {
+    console.error("Failed to determine CLI version.");
+    process.exitCode = 1;
+    return;
+  }
+  process.stdout.write(`${version}\n`);
+};
+
+type PackageManagerName = "npm" | "pnpm" | "yarn" | "bun";
+
+const detectPackageManager = (): PackageManagerName | null => {
+  const userAgent = process.env.npm_config_user_agent;
+  if (!userAgent) {
+    return null;
+  }
+  const match = userAgent.match(/^(npm|pnpm|yarn|bun)\//);
+  return match ? (match[1] as PackageManagerName) : null;
+};
+
+const getPackageManagerCandidates = (): PackageManagerName[] => {
+  const preferred = detectPackageManager();
+  const defaults: PackageManagerName[] = ["npm", "pnpm", "yarn", "bun"];
+  if (!preferred) {
+    return defaults;
+  }
+  return [preferred, ...defaults.filter((name) => name !== preferred)];
+};
+
+const buildUpgradeArgs = (manager: PackageManagerName): string[] => {
+  switch (manager) {
+    case "pnpm":
+      return ["add", "-g", "@guckdev/cli"];
+    case "yarn":
+      return ["global", "add", "@guckdev/cli"];
+    case "bun":
+      return ["add", "-g", "@guckdev/cli"];
+    case "npm":
+    default:
+      return ["install", "-g", "@guckdev/cli"];
+  }
+};
+
+const runUpgrade = async (
+  manager: PackageManagerName,
+): Promise<{ status: "ok"; code: number } | { status: "missing" } | { status: "failed"; error: Error }> => {
+  const args = buildUpgradeArgs(manager);
+  return await new Promise((resolve) => {
+    let settled = false;
+    const child = spawn(manager, args, { stdio: "inherit" });
+    const finish = (
+      result: { status: "ok"; code: number } | { status: "missing" } | { status: "failed"; error: Error },
+    ) => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      resolve(result);
+    };
+    child.on("error", (error) => {
+      const err = error as NodeJS.ErrnoException;
+      if (err.code === "ENOENT") {
+        finish({ status: "missing" });
+        return;
+      }
+      finish({ status: "failed", error });
+    });
+    child.on("exit", (code) => {
+      finish({ status: "ok", code: code ?? 0 });
+    });
+  });
 };
 
 const parseArgs = (argv: string[]) => {
@@ -219,9 +308,36 @@ const handleEmit = async (argv: string[]): Promise<number> => {
   return 0;
 };
 
+const handleUpgrade = async (argv: string[]): Promise<number> => {
+  if (argv.includes("--help") || argv.includes("-h")) {
+    console.log("Usage: guck upgrade\nUpdates @guckdev/cli using a global install.");
+    return 0;
+  }
+
+  for (const manager of getPackageManagerCandidates()) {
+    const result = await runUpgrade(manager);
+    if (result.status === "missing") {
+      continue;
+    }
+    if (result.status === "failed") {
+      console.error(`Failed to run ${manager}.`, result.error);
+      return 1;
+    }
+    return result.code;
+  }
+
+  console.error("No supported package manager found (npm, pnpm, yarn, bun).");
+  return 1;
+};
+
 const main = async (): Promise<void> => {
   const argv = process.argv.slice(2);
   const command = argv[0];
+
+  if (command === "--version" || command === "-v") {
+    printVersion();
+    return;
+  }
 
   if (!command || command === "help" || command === "--help" || command === "-h") {
     printHelp();
@@ -258,6 +374,12 @@ const main = async (): Promise<void> => {
 
   if (command === "mcp") {
     await startMcpServer();
+    return;
+  }
+
+  if (command === "upgrade") {
+    const exitCode = await handleUpgrade(argv.slice(1));
+    process.exitCode = exitCode;
     return;
   }
 
