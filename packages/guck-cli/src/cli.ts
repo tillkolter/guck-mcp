@@ -18,7 +18,7 @@ import { startMcpServer } from "@guckdev/mcp";
 
 const printHelp = (): void => {
   console.log(
-    `Guck - MCP-first telemetry\n\nCommands:\n  init                 Create .guck.json and .guck.local.json\n  checkpoint           Write a .guck-checkpoint epoch timestamp\n  wrap --service <s> --session <id> -- <cmd...>\n                       Capture stdout/stderr and write JSONL\n  emit --service <s> --session <id>\n                       Read JSON events from stdin and append\n  mcp                  Start MCP server\n  upgrade              Update the @guckdev/cli install\n\nOptions:\n  --version, -v        Print version\n`,
+    `Guck - MCP-first telemetry\n\nCommands:\n  init                 Create .guck.json\n  checkpoint           Write a .guck-checkpoint epoch timestamp\n  wrap --service <s> --session <id> -- <cmd...>\n                       Capture stdout/stderr and write JSONL\n  emit --service <s> --session <id>\n                       Read JSON events from stdin and append\n  mcp                  Start MCP server\n  upgrade              Update the @guckdev/cli install\n\nOptions:\n  --version, -v        Print version\n`,
   );
 };
 
@@ -107,7 +107,6 @@ const runUpgrade = async (
       finish({ status: "ok", code: code ?? 0 });
     });
   });
-};
 
 const parseArgs = (argv: string[]) => {
   const args = [...argv];
