@@ -9,6 +9,7 @@ const jsPackages = [
   { name: "@guckdev/mcp", dir: path.join(root, "packages", "guck-mcp") },
   { name: "@guckdev/browser", dir: path.join(root, "packages", "guck-browser") },
   { name: "@guckdev/cli", dir: path.join(root, "packages", "guck-cli") },
+  { name: "@guckdev/vite", dir: path.join(root, "packages", "guck-vite") },
 ];
 
 const run = (cmd, args, cwd = root) => {
