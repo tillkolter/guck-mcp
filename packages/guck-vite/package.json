@@ -16,6 +16,7 @@
   },
   "files": [
     "dist",
+    "scripts",
     "src",
     "tsconfig.json"
   ],
@@ -23,7 +24,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "node scripts/ensure-deps.mjs && tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
     "test": "pnpm run build && node --test test/*.test.js",
     "prepare": "pnpm run build"
