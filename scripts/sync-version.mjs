@@ -50,3 +50,4 @@ updateJsonVersion(path.join(root, "packages", "guck-cli", "package.json"));
 updateJsonVersion(path.join(root, "packages", "guck-core", "package.json"));
 updateJsonVersion(path.join(root, "packages", "guck-mcp", "package.json"));
 updateJsonVersion(path.join(root, "packages", "guck-browser", "package.json"));
+updateJsonVersion(path.join(root, "packages", "guck-vite", "package.json"));
