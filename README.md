@@ -137,6 +137,30 @@ inside the config to turn it off explicitly.
 For MCP usage across multiple repos, each tool accepts an optional
 `config_path` parameter to point at a specific `.guck.json`.
 
+### Multi-service or multi-repo tracing (shared store)
+
+To trace across local microservices (or multiple repos), point every service
+at the same **absolute** `store_dir`. This creates a single shared log store
+that `guck.search` can query across. Use a shared `GUCK_SESSION_ID` to
+correlate events and distinct `service` names to separate sources.
+
+Example shared config:
+
+```json
+{
+  "version": 1,
+  "enabled": true,
+  "store_dir": "/Users/you/.guck/logs"
+}
+```
+
+Then set:
+
+```sh
+export GUCK_CONFIG_PATH=/path/to/shared/.guck.json
+export GUCK_SESSION_ID=dev-2026-02-10
+```
+
 ```json
 {
   "version": 1,

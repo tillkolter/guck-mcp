@@ -20,6 +20,7 @@ const startUpstream = async () => {
     req.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
     req.on("end", () => {
       requests.push({
+        method: req.method,
         headers: req.headers,
         body: Buffer.concat(chunks).toString("utf8"),
       });
@@ -35,8 +36,8 @@ const startUpstream = async () => {
   return { server, port, requests };
 };
 
-const startVite = async (plugin) => {
-  const root = createTempRoot();
+const startVite = async (plugin, rootOverride) => {
+  const root = rootOverride ?? createTempRoot();
   const server = await createViteServer({
     root,
     server: { port: 0, host: "127.0.0.1" },
@@ -45,7 +46,7 @@ const startVite = async (plugin) => {
   await server.listen();
   const address = server.httpServer.address();
   const port = typeof address === "object" && address ? address.port : 0;
-  return { server, port };
+  return { server, port, root };
 };
 
 test("forwards to ingest with config header", async (t) => {
@@ -69,7 +70,8 @@ test("forwards to ingest with config header", async (t) => {
   });
 
   assert.equal(response.status, 200);
-  assert.equal(upstream.requests.length, 1);
+  const postRequests = upstream.requests.filter((request) => request.method === "POST");
+  assert.equal(postRequests.length, 1);
   const request = upstream.requests[0];
   assert.equal(request.headers["x-guck-config-path"], configPath);
   assert.ok(request.body.includes("hello"));
@@ -111,4 +113,42 @@ test("returns 502 when upstream is down", async (t) => {
   assert.equal(response.status, 502);
   const payload = await response.json();
   assert.equal(payload.error, "Upstream unreachable");
+});
+
+test("auto-discovers ingest via registry", async (t) => {
+  const upstream = await startUpstream();
+  t.after(() => upstream.server.close());
+
+  const root = createTempRoot();
+  fs.mkdirSync(path.join(root, ".git"));
+  const registryDir = fs.mkdtempSync(path.join(os.tmpdir(), "guck-registry-"));
+  const registryEntry = {
+    version: 1,
+    pid: process.pid,
+    root_dir: root,
+    host: "127.0.0.1",
+    path: "/guck/emit",
+    port: upstream.port,
+    started_at: new Date().toISOString(),
+  };
+  fs.writeFileSync(path.join(registryDir, "entry.json"), JSON.stringify(registryEntry));
+
+  const vite = await startVite(
+    guckVitePlugin({
+      configPath: root,
+      registryDir,
+    }),
+    root,
+  );
+  t.after(() => vite.server.close());
+
+  const response = await fetch(`http://127.0.0.1:${vite.port}/guck/emit`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ message: "hello" }),
+  });
+
+  assert.equal(response.status, 200);
+  const postRequests = upstream.requests.filter((request) => request.method === "POST");
+  assert.equal(postRequests.length, 1);
 });

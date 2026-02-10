@@ -22,6 +22,7 @@ import {
   resolveStoreDir,
 } from "@guckdev/core";
 import { resolveHttpIngestConfig, startHttpIngest, type HttpIngestConfig } from "./ingest.js";
+import { writeIngestRegistryEntry } from "./registry.js";
 const SEARCH_SCHEMA = {
   type: "object",
   description:
@@ -220,7 +221,7 @@ const resolveHttpConfig = (
   });
 
   if (resolved.port !== undefined) {
-    if (!Number.isInteger(resolved.port) || resolved.port <= 0 || resolved.port > 65535) {
+    if (!Number.isInteger(resolved.port) || resolved.port < 0 || resolved.port > 65535) {
       throw new Error(`[guck] invalid HTTP port: ${resolved.port}`);
     }
   }
@@ -229,6 +230,15 @@ const resolveHttpConfig = (
   }
 
   return resolved;
+};
+
+const isAddrInUse = (error: unknown): boolean => {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "EADDRINUSE"
+  );
 };
 
 export const startMcpServer = async (options: McpServerOptions = {}): Promise<void> => {
@@ -393,18 +403,50 @@ export const startMcpServer = async (options: McpServerOptions = {}): Promise<vo
 
   const transport = new StdioServerTransport();
 
-  const { config: baseConfig, rootDir: baseRoot } = loadConfig({ configPath: options.configPath });
+  const {
+    config: baseConfig,
+    rootDir: baseRoot,
+    configPath: baseConfigPath,
+  } = loadConfig({ configPath: options.configPath });
   const httpConfig = resolveHttpConfig(baseConfig, options.http);
   if (httpConfig.port !== undefined) {
     const storeDir = resolveStoreDir(baseConfig, baseRoot);
-    await startHttpIngest({
-      port: httpConfig.port,
-      host: httpConfig.host,
-      path: httpConfig.path,
-      maxBodyBytes: httpConfig.maxBodyBytes,
-      config: baseConfig,
-      storeDir,
-    });
+    let ingestHandle;
+    try {
+      ingestHandle = await startHttpIngest({
+        port: httpConfig.port,
+        host: httpConfig.host,
+        path: httpConfig.path,
+        maxBodyBytes: httpConfig.maxBodyBytes,
+        config: baseConfig,
+        storeDir,
+      });
+    } catch (error) {
+      if (isAddrInUse(error) && httpConfig.port > 0) {
+        ingestHandle = await startHttpIngest({
+          port: 0,
+          host: httpConfig.host,
+          path: httpConfig.path,
+          maxBodyBytes: httpConfig.maxBodyBytes,
+          config: baseConfig,
+          storeDir,
+        });
+      } else {
+        throw error;
+      }
+    }
+    try {
+      writeIngestRegistryEntry({
+        rootDir: baseRoot,
+        configPath: baseConfigPath,
+        host: httpConfig.host,
+        path: httpConfig.path,
+        port: ingestHandle.port,
+        sessionId: process.env.GUCK_SESSION_ID ?? process.env.CODEX_THREAD_ID,
+      });
+    } catch {
+      // Registry is best-effort.
+    }
   }
 
   await server.connect(transport);
