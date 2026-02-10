@@ -41,7 +41,10 @@ export default defineConfig({
 
 3) Use `/guck/emit` as the browser endpoint.
 
-## Quick local setup (HTTPS dev host)
+The browser will POST to your Vite dev server (for example `http://localhost:5173/guck/emit`).
+The plugin forwards those requests to the shared MCP ingest at `http://127.0.0.1:7331/guck/emit`.
+
+## Quick local setup (HTTPS dev host, no Vite plugin)
 
 1) Start the MCP server with HTTP ingest:
 
@@ -62,7 +65,7 @@ endpoint through Caddy so the browser stays on HTTPS:
 }
 ```
 
-3) Use the proxied endpoint and pass a config path:
+3) Use the proxied endpoint:
 
 ```ts
 const client = createBrowserClient({
