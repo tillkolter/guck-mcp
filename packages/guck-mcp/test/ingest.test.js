@@ -133,3 +133,31 @@ test("http ingest rejects when disabled", async (t) => {
 
   assert.equal(response.status, 403);
 });
+
+test("http ingest supports auto port", async (t) => {
+  const storeDir = fs.mkdtempSync(path.join(os.tmpdir(), "guck-ingest-"));
+  const config = getDefaultConfig();
+  config.enabled = true;
+
+  const handle = await startHttpIngest({
+    port: 0,
+    host: "127.0.0.1",
+    path: "/guck/emit",
+    maxBodyBytes: 512000,
+    config,
+    storeDir,
+  });
+  t.after(async () => {
+    await handle.close();
+  });
+
+  assert.ok(handle.port > 0);
+
+  const response = await fetch(`http://127.0.0.1:${handle.port}/guck/emit`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ message: "auto port" }),
+  });
+
+  assert.equal(response.status, 200);
+});

@@ -27,6 +27,7 @@ type HttpIngestRuntime = {
 
 type HttpIngestHandle = {
   close: () => Promise<void>;
+  port: number;
 };
 
 const DEFAULT_HOST = "127.0.0.1";
@@ -233,9 +234,16 @@ export const startHttpIngest = async (options: HttpIngestRuntime): Promise<HttpI
     writeJson(res, 200, { ok: true, count: items.length });
   });
 
+  let resolvedPort = options.port;
   await new Promise<void>((resolve, reject) => {
     server.once("error", reject);
-    server.listen(options.port, options.host, () => resolve());
+    server.listen(options.port, options.host, () => {
+      const address = server.address();
+      if (typeof address === "object" && address) {
+        resolvedPort = address.port;
+      }
+      resolve();
+    });
   });
 
   return {
@@ -249,6 +257,7 @@ export const startHttpIngest = async (options: HttpIngestRuntime): Promise<HttpI
           resolve();
         });
       }),
+    port: resolvedPort,
   };
 };
 
