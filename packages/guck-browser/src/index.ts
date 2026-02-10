@@ -31,6 +31,7 @@ type BrowserClientOptions = {
   headers?: Record<string, string>;
   configPath?: string | (() => string | undefined);
   configPathMode?: "always" | "dev-only";
+  devOnly?: boolean;
   enabled?: boolean;
   keepalive?: boolean;
   fetch?: typeof fetch;
@@ -173,6 +174,19 @@ const mapConsoleLevel = (method: ConsoleMethod): GuckLevel => {
   }
 };
 
+const isDevHost = (hostname?: string): boolean => {
+  if (!hostname) {
+    return false;
+  }
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname === "[::1]" ||
+    hostname.startsWith("local.") ||
+    hostname.endsWith(".local")
+  );
+};
+
 export const createBrowserClient = (options: BrowserClientOptions): BrowserClient => {
   if (!options?.endpoint) {
     throw new Error("[guck] endpoint is required");
@@ -185,7 +199,11 @@ export const createBrowserClient = (options: BrowserClientOptions): BrowserClien
   const headers = options.headers ?? {};
   const configPath = options.configPath;
   const configPathMode = options.configPathMode ?? "dev-only";
-  const enabled = options.enabled ?? true;
+  const devOnly = options.devOnly ?? true;
+  const hostname =
+    typeof window !== "undefined" ? window.location.hostname : undefined;
+  const devHost = isDevHost(hostname);
+  const enabled = options.enabled ?? (devOnly ? devHost : true);
   const keepalive = options.keepalive ?? true;
   const fetcher = options.fetch ?? fetch;
   const onError = options.onError;
@@ -216,18 +234,11 @@ export const createBrowserClient = (options: BrowserClientOptions): BrowserClien
     };
     const resolvedConfigPath =
       typeof configPath === "function" ? configPath() : configPath;
-    const hostname =
-      typeof window !== "undefined" ? window.location.hostname : undefined;
     const shouldSendConfigPath =
       !!resolvedConfigPath &&
       (configPathMode === "always" ||
         (configPathMode === "dev-only" &&
-          !!hostname &&
-          (hostname === "localhost" ||
-            hostname === "127.0.0.1" ||
-            hostname === "[::1]" ||
-            hostname.startsWith("local.") ||
-            hostname.endsWith(".local"))));
+          devHost));
     if (shouldSendConfigPath && resolvedConfigPath) {
       requestHeaders["x-guck-config-path"] = resolvedConfigPath;
     }
