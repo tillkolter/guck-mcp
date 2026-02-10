@@ -38,3 +38,20 @@ stop();
 Notes:
 - The HTTP ingest endpoint is CORS-enabled by default.
 - If your page is served over HTTPS, posting to an HTTP localhost endpoint may be blocked by mixed-content rules.
+
+### Caddy (HTTPS dev) proxy example
+
+If your frontend runs behind Caddy on HTTPS, proxy a path to the local ingest server
+so the browser stays on HTTPS:
+
+```caddyfile
+:443 {
+  # your existing site config...
+
+  handle_path /guck/emit {
+    reverse_proxy 127.0.0.1:7331
+  }
+}
+```
+
+Then point the client at `https://your-dev-host/guck/emit`.
