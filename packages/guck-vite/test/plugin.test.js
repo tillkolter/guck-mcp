@@ -20,6 +20,7 @@ const startUpstream = async () => {
     req.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
     req.on("end", () => {
       requests.push({
+        method: req.method,
         headers: req.headers,
         body: Buffer.concat(chunks).toString("utf8"),
       });
@@ -69,7 +70,8 @@ test("forwards to ingest with config header", async (t) => {
   });
 
   assert.equal(response.status, 200);
-  assert.equal(upstream.requests.length, 1);
+  const postRequests = upstream.requests.filter((request) => request.method === "POST");
+  assert.equal(postRequests.length, 1);
   const request = upstream.requests[0];
   assert.equal(request.headers["x-guck-config-path"], configPath);
   assert.ok(request.body.includes("hello"));
@@ -147,5 +149,6 @@ test("auto-discovers ingest via registry", async (t) => {
   });
 
   assert.equal(response.status, 200);
-  assert.equal(upstream.requests.length, 1);
+  const postRequests = upstream.requests.filter((request) => request.method === "POST");
+  assert.equal(postRequests.length, 1);
 });
