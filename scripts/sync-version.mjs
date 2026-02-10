@@ -10,6 +10,7 @@ const internalPackages = new Set([
   "@guckdev/core",
   "@guckdev/mcp",
   "@guckdev/cli",
+  "@guckdev/browser",
 ]);
 
 const updateJsonVersion = (filePath) => {
@@ -48,3 +49,4 @@ updateJsonVersion(path.join(root, "packages", "guck-js", "package.json"));
 updateJsonVersion(path.join(root, "packages", "guck-cli", "package.json"));
 updateJsonVersion(path.join(root, "packages", "guck-core", "package.json"));
 updateJsonVersion(path.join(root, "packages", "guck-mcp", "package.json"));
+updateJsonVersion(path.join(root, "packages", "guck-browser", "package.json"));

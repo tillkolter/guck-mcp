@@ -23,6 +23,11 @@ const DEFAULT_CONFIG: GuckConfig = {
   mcp: {
     max_results: 200,
     default_lookback_ms: 300000,
+    http: {
+      host: "127.0.0.1",
+      path: "/guck/emit",
+      max_body_bytes: 512000,
+    },
   },
 };
 
@@ -84,6 +89,14 @@ const mergeSdkConfig = (
 };
 
 const mergeConfig = (base: GuckConfig, override: Partial<GuckConfig>): GuckConfig => {
+  const mergedMcp = {
+    ...base.mcp,
+    ...(override.mcp ?? {}),
+    http: {
+      ...(base.mcp.http ?? {}),
+      ...(override.mcp?.http ?? {}),
+    },
+  };
   return {
     ...base,
     ...override,
@@ -97,10 +110,7 @@ const mergeConfig = (base: GuckConfig, override: Partial<GuckConfig>): GuckConfi
       ...base.redaction,
       ...(override.redaction ?? {}),
     },
-    mcp: {
-      ...base.mcp,
-      ...(override.mcp ?? {}),
-    },
+    mcp: mergedMcp,
   };
 };
 

@@ -7,6 +7,7 @@ const jsPackages = [
   { name: "@guckdev/core", dir: path.join(root, "packages", "guck-core") },
   { name: "@guckdev/sdk", dir: path.join(root, "packages", "guck-js") },
   { name: "@guckdev/mcp", dir: path.join(root, "packages", "guck-mcp") },
+  { name: "@guckdev/browser", dir: path.join(root, "packages", "guck-browser") },
   { name: "@guckdev/cli", dir: path.join(root, "packages", "guck-cli") },
 ];
 

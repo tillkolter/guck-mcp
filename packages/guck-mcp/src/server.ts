@@ -21,6 +21,7 @@ import {
   redactEvent,
   resolveStoreDir,
 } from "@guckdev/core";
+import { resolveHttpIngestConfig, startHttpIngest, type HttpIngestConfig } from "./ingest.js";
 const SEARCH_SCHEMA = {
   type: "object",
   description:
@@ -183,7 +184,54 @@ const resolveSince = (
   return `${config.mcp.default_lookback_ms}ms`;
 };
 
-export const startMcpServer = async (): Promise<void> => {
+type McpServerOptions = {
+  http?: HttpIngestConfig;
+  configPath?: string;
+};
+
+const parseNumber = (value: string | undefined, label: string): number | undefined => {
+  if (value === undefined) {
+    return undefined;
+  }
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`[guck] invalid ${label}: ${value}`);
+  }
+  return parsed;
+};
+
+const resolveHttpConfig = (
+  config: GuckConfig,
+  overrides?: HttpIngestConfig,
+): { port?: number; host: string; path: string; maxBodyBytes: number } => {
+  const envPort = parseNumber(process.env.GUCK_MCP_HTTP_PORT, "GUCK_MCP_HTTP_PORT");
+  const envMax = parseNumber(
+    process.env.GUCK_MCP_HTTP_MAX_BODY_BYTES,
+    "GUCK_MCP_HTTP_MAX_BODY_BYTES",
+  );
+  const envHost = process.env.GUCK_MCP_HTTP_HOST;
+  const envPath = process.env.GUCK_MCP_HTTP_PATH;
+
+  const resolved = resolveHttpIngestConfig({
+    port: overrides?.port ?? envPort ?? config.mcp.http?.port,
+    host: overrides?.host ?? envHost ?? config.mcp.http?.host,
+    path: overrides?.path ?? envPath ?? config.mcp.http?.path,
+    max_body_bytes: overrides?.max_body_bytes ?? envMax ?? config.mcp.http?.max_body_bytes,
+  });
+
+  if (resolved.port !== undefined) {
+    if (!Number.isInteger(resolved.port) || resolved.port <= 0 || resolved.port > 65535) {
+      throw new Error(`[guck] invalid HTTP port: ${resolved.port}`);
+    }
+  }
+  if (!Number.isInteger(resolved.maxBodyBytes) || resolved.maxBodyBytes <= 0) {
+    throw new Error(`[guck] invalid HTTP max_body_bytes: ${resolved.maxBodyBytes}`);
+  }
+
+  return resolved;
+};
+
+export const startMcpServer = async (options: McpServerOptions = {}): Promise<void> => {
   const server = new Server(
     {
       name: "guck",
@@ -344,5 +392,20 @@ export const startMcpServer = async (): Promise<void> => {
   });
 
   const transport = new StdioServerTransport();
+
+  const { config: baseConfig, rootDir: baseRoot } = loadConfig({ configPath: options.configPath });
+  const httpConfig = resolveHttpConfig(baseConfig, options.http);
+  if (httpConfig.port !== undefined) {
+    const storeDir = resolveStoreDir(baseConfig, baseRoot);
+    await startHttpIngest({
+      port: httpConfig.port,
+      host: httpConfig.host,
+      path: httpConfig.path,
+      maxBodyBytes: httpConfig.maxBodyBytes,
+      config: baseConfig,
+      storeDir,
+    });
+  }
+
   await server.connect(transport);
 };

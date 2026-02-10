@@ -22,7 +22,8 @@
     "overrides": {
       "@guckdev/sdk": "workspace:*",
       "@guckdev/core": "workspace:*",
-      "@guckdev/mcp": "workspace:*"
+      "@guckdev/mcp": "workspace:*",
+      "@guckdev/browser": "workspace:*"
     }
   }
 }

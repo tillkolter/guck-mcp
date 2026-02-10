@@ -8,6 +8,7 @@ overrides:
   '@guckdev/sdk': workspace:*
   '@guckdev/core': workspace:*
   '@guckdev/mcp': workspace:*
+  '@guckdev/browser': workspace:*
 
 importers:
 
@@ -28,6 +29,12 @@ importers:
       semantic-release:
         specifier: ^24.0.0
         version: 24.2.9
+
+  packages/guck-browser:
+    devDependencies:
+      '@types/node':
+        specifier: 25.2.2
+        version: 25.2.2
 
   packages/guck-cli:
     dependencies:

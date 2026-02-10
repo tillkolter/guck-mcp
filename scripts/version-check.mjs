@@ -44,6 +44,16 @@ if (mcpPkg.version !== version) {
   );
 }
 
+const browserPkg = JSON.parse(
+  fs.readFileSync(path.join(root, "packages", "guck-browser", "package.json"), "utf8"),
+);
+
+if (browserPkg.version !== version) {
+  throw new Error(
+    `Version mismatch: VERSION=${version} packages/guck-browser/package.json=${browserPkg.version}`,
+  );
+}
+
 const pyproject = fs.readFileSync(
   path.join(root, "packages", "guck-py", "pyproject.toml"),
   "utf8",

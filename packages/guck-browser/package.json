@@ -1,7 +1,7 @@
 {
-  "name": "@guckdev/mcp",
+  "name": "@guckdev/browser",
   "version": "0.1.0",
-  "description": "MCP server for Guck telemetry",
+  "description": "Guck browser SDK",
   "repository": {
     "type": "git",
     "url": "https://github.com/tillkolter/guck-mcp"
@@ -16,7 +16,6 @@
   },
   "files": [
     "dist",
-    "scripts",
     "src",
     "tsconfig.json"
   ],
@@ -24,17 +23,13 @@
     "access": "public"
   },
   "scripts": {
-    "build": "node scripts/ensure-deps.mjs && tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
-    "prepare": "pnpm run build",
-    "test": "pnpm run build && node --test test/*.test.js"
+    "test": "pnpm run build && node --test test/*.test.js",
+    "prepare": "pnpm run build"
   },
   "engines": {
     "node": ">=18"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "1.26.0",
-    "@guckdev/core": "0.1.0"
   },
   "devDependencies": {
     "@types/node": "25.2.2"

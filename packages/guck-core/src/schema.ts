@@ -44,10 +44,20 @@ export type GuckConfig = {
     keys: string[];
     patterns: string[];
   };
-  mcp: {
-    max_results: number;
-    default_lookback_ms: number;
-  };
+  mcp: GuckMcpConfig;
+};
+
+export type GuckMcpHttpConfig = {
+  port?: number;
+  host?: string;
+  path?: string;
+  max_body_bytes?: number;
+};
+
+export type GuckMcpConfig = {
+  max_results: number;
+  default_lookback_ms: number;
+  http?: GuckMcpHttpConfig;
 };
 
 export type GuckReadBackendType = "local" | "cloudwatch" | "k8s";

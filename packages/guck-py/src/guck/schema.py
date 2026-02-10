@@ -38,6 +38,14 @@ class GuckRedactionConfig(TypedDict):
 class GuckMcpConfig(TypedDict):
     max_results: int
     default_lookback_ms: int
+    http: "GuckMcpHttpConfig"
+
+
+class GuckMcpHttpConfig(TypedDict, total=False):
+    port: int
+    host: str
+    path: str
+    max_body_bytes: int
 
 
 class GuckSdkConfig(TypedDict):
