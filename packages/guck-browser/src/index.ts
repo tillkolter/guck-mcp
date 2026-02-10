@@ -194,9 +194,32 @@ const isDevEndpoint = (endpoint: string): boolean => {
   }
 };
 
+const isProdBuild = (): boolean => {
+  if (typeof process !== "undefined") {
+    const env = (process as { env?: Record<string, string | undefined> }).env;
+    if (env && typeof env.NODE_ENV === "string") {
+      return env.NODE_ENV === "production";
+    }
+  }
+  const meta =
+    typeof import.meta !== "undefined"
+      ? (import.meta as { env?: Record<string, unknown> }).env
+      : undefined;
+  if (meta && typeof meta.PROD === "boolean") {
+    return meta.PROD;
+  }
+  if (meta && typeof meta.MODE === "string") {
+    return meta.MODE === "production";
+  }
+  return false;
+};
+
 export const createBrowserClient = (options: BrowserClientOptions): BrowserClient => {
   if (!options?.endpoint) {
     throw new Error("[guck] endpoint is required");
+  }
+  if (isProdBuild()) {
+    throw new Error("[guck] browser SDK is development-only");
   }
   const endpoint = options.endpoint;
   const service = options.service ?? "guck";

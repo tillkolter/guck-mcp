@@ -1,7 +1,7 @@
 # Guck (Browser SDK)
 
 Browser SDK for emitting Guck telemetry to a local MCP HTTP ingest endpoint.
-This package is intended for **development only** and is inert unless the endpoint host is local.
+This package is intended for **development only** and throws if used in production builds.
 
 ## Usage
 
@@ -93,7 +93,8 @@ Notes:
 - If your page is served over HTTPS, posting to an HTTP localhost endpoint may be blocked by mixed-content rules.
 - `configPath` can be a directory (containing `.guck.json`) or a direct path to a `.guck.json` file.
 - `configPath` is sent as a request header (not part of the event body).
-- The SDK is inert unless the endpoint host is local (`localhost`, `127.0.0.1`, `local.*`, `*.local`).
+- The SDK only runs when the endpoint host is local (`localhost`, `127.0.0.1`, `local.*`, `*.local`).
+- `createBrowserClient()` throws when `NODE_ENV` / `import.meta.env.PROD` indicates production.
 - `installAutoCapture()` should usually be called once at app startup; repeated calls will wrap console multiple times.
 - If you install it inside a component or test, call `stop()` on cleanup to avoid duplicate logging.
 - For SPAs, it's fine to call `installAutoCapture()` once in your app entry (e.g. `index.ts`) and never call `stop()`.
