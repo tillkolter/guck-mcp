@@ -107,6 +107,7 @@ const runUpgrade = async (
       finish({ status: "ok", code: code ?? 0 });
     });
   });
+};
 
 const parseArgs = (argv: string[]) => {
   const args = [...argv];
