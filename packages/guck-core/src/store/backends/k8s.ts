@@ -210,7 +210,7 @@ const toEvent = (
   }
 
   try {
-    const parsed = JSON.parse(trimmed);
+    const parsed: unknown = JSON.parse(trimmed);
     if (!parsed || typeof parsed !== "object") {
       return fallback;
     }
@@ -764,7 +764,7 @@ export const createK8sBackend = (config: GuckK8sReadBackendConfig): ReadBackend 
       } else if (params.group_by === "level") {
         key = event.level;
       } else if (params.group_by === "stage") {
-        const stage = (event.data as Record<string, unknown> | undefined)?.stage;
+        const stage = event.data?.stage;
         key = typeof stage === "string" ? stage : "unknown";
       }
       buckets.set(key, (buckets.get(key) ?? 0) + 1);

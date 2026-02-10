@@ -408,14 +408,14 @@ const resolveSince = (
       if (checkpointMs !== undefined) {
         return new Date(checkpointMs).toISOString();
       }
-      return `${config.mcp.default_lookback_ms}ms`;
+      return `${String(config.mcp.default_lookback_ms)}ms`;
     }
     return input;
   }
   if (checkpointMs !== undefined) {
     return new Date(checkpointMs).toISOString();
   }
-  return `${config.mcp.default_lookback_ms}ms`;
+  return `${String(config.mcp.default_lookback_ms)}ms`;
 };
 
 type McpServerOptions = {
@@ -426,6 +426,7 @@ export const startMcpServer = async (options: McpServerOptions = {}): Promise<vo
   if (options.configPath && !process.env.GUCK_CONFIG && !process.env.GUCK_CONFIG_PATH) {
     process.env.GUCK_CONFIG_PATH = options.configPath;
   }
+  // eslint-disable-next-line @typescript-eslint/no-deprecated
   const server = new Server(
     {
       name: "guck",
@@ -498,6 +499,7 @@ export const startMcpServer = async (options: McpServerOptions = {}): Promise<vo
     if (request.params.name === "guck.search") {
       const input = (request.params.arguments ?? {}) as GuckSearchParams;
       const { config_path: _configPath, ...filters } = input;
+      void _configPath;
       const withDefaults: GuckSearchParams = {
         ...filters,
         since: resolveSince(filters.since, config, storeDir),
@@ -699,6 +701,7 @@ export const startMcpServer = async (options: McpServerOptions = {}): Promise<vo
     if (request.params.name === "guck.stats") {
       const input = (request.params.arguments ?? {}) as GuckStatsParams;
       const { config_path: _configPath, ...filters } = input;
+      void _configPath;
       const withDefaults: GuckStatsParams = {
         ...filters,
         since: resolveSince(filters.since, config, storeDir),
@@ -710,6 +713,7 @@ export const startMcpServer = async (options: McpServerOptions = {}): Promise<vo
     if (request.params.name === "guck.sessions") {
       const input = (request.params.arguments ?? {}) as GuckSessionsParams;
       const { config_path: _configPath, ...filters } = input;
+      void _configPath;
       const withDefaults: GuckSessionsParams = {
         ...filters,
         since: resolveSince(filters.since, config, storeDir),
@@ -721,6 +725,7 @@ export const startMcpServer = async (options: McpServerOptions = {}): Promise<vo
     if (request.params.name === "guck.tail") {
       const input = (request.params.arguments ?? {}) as GuckTailParams;
       const { config_path: _configPath, ...filters } = input;
+      void _configPath;
       const limit = input.limit ?? Math.min(config.mcp.max_results, 50);
       const since = resolveSince(undefined, config, storeDir);
       let result;

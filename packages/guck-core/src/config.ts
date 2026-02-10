@@ -37,7 +37,7 @@ export type LoadedConfig = {
   config: GuckConfig;
 };
 
-const readJsonFile = (filePath: string): unknown | null => {
+const readJsonFile = (filePath: string): unknown => {
   try {
     const raw = fs.readFileSync(filePath, "utf8");
     return JSON.parse(raw);
