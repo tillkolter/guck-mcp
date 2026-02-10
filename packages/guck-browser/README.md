@@ -19,6 +19,7 @@ const client = createBrowserClient({
   endpoint: "http://localhost:7331/guck/emit",
   service: "web-ui",
   sessionId: "dev-1",
+  configPath: "/absolute/path/to/your/project",
 });
 
 await client.emit({ message: "hello from the browser" });
@@ -38,6 +39,7 @@ stop();
 Notes:
 - The HTTP ingest endpoint is CORS-enabled by default.
 - If your page is served over HTTPS, posting to an HTTP localhost endpoint may be blocked by mixed-content rules.
+- `configPath` can be a directory (containing `.guck.json`) or a direct path to a `.guck.json` file.
 - `installAutoCapture()` should usually be called once at app startup; repeated calls will wrap console multiple times.
 - If you install it inside a component or test, call `stop()` on cleanup to avoid duplicate logging.
 - For SPAs, it's fine to call `installAutoCapture()` once in your app entry (e.g. `index.ts`) and never call `stop()`.

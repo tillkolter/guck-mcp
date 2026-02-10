@@ -29,6 +29,7 @@ type BrowserClientOptions = {
   runId?: string;
   tags?: Record<string, string>;
   headers?: Record<string, string>;
+  configPath?: string;
   enabled?: boolean;
   keepalive?: boolean;
   fetch?: typeof fetch;
@@ -181,6 +182,7 @@ export const createBrowserClient = (options: BrowserClientOptions): BrowserClien
   const runId = options.runId ?? randomId();
   const tags = options.tags;
   const headers = options.headers ?? {};
+  const configPath = options.configPath;
   const enabled = options.enabled ?? true;
   const keepalive = options.keepalive ?? true;
   const fetcher = options.fetch ?? fetch;
@@ -206,12 +208,17 @@ export const createBrowserClient = (options: BrowserClientOptions): BrowserClien
       source: input.source ?? { kind: "sdk" },
     };
 
+    const requestHeaders: Record<string, string> = {
+      "content-type": "application/json",
+      ...headers,
+    };
+    if (configPath) {
+      requestHeaders["x-guck-config-path"] = configPath;
+    }
+
     const response = await fetcher(endpoint, {
       method: "POST",
-      headers: {
-        "content-type": "application/json",
-        ...headers,
-      },
+      headers: requestHeaders,
       body: JSON.stringify(event),
       keepalive,
     });
@@ -233,10 +240,17 @@ export const createBrowserClient = (options: BrowserClientOptions): BrowserClien
     const originals: Partial<Record<ConsoleMethod, (...args: unknown[]) => void>> = {};
     const listeners: Array<() => void> = [];
 
+    let suppressConsoleCapture = false;
     const safeEmit = (payload: Partial<GuckEvent>) => {
       void emit(payload).catch((error) => {
-        if (onError) {
+        if (!onError) {
+          return;
+        }
+        suppressConsoleCapture = true;
+        try {
           onError(error);
+        } finally {
+          suppressConsoleCapture = false;
         }
       });
     };
@@ -248,6 +262,9 @@ export const createBrowserClient = (options: BrowserClientOptions): BrowserClien
         originals[method] = original;
         console[method] = (...args: unknown[]) => {
           original.apply(console, args);
+          if (suppressConsoleCapture) {
+            return;
+          }
           safeEmit({
             type: "console",
             level: mapConsoleLevel(method),

@@ -1,6 +1,13 @@
 import http from "node:http";
 import { randomUUID } from "node:crypto";
-import { appendEvent, GuckConfig, GuckEvent, redactEvent } from "@guckdev/core";
+import {
+  appendEvent,
+  GuckConfig,
+  GuckEvent,
+  loadConfig,
+  redactEvent,
+  resolveStoreDir,
+} from "@guckdev/core";
 
 type HttpIngestConfig = {
   port?: number;
@@ -25,6 +32,31 @@ type HttpIngestHandle = {
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PATH = "/guck/emit";
 const DEFAULT_MAX_BODY_BYTES = 512000;
+
+const readHeader = (req: http.IncomingMessage, name: string): string | undefined => {
+  const value = req.headers[name];
+  if (Array.isArray(value)) {
+    return value[0]?.trim() || undefined;
+  }
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : undefined;
+  }
+  return undefined;
+};
+
+const resolveRequestConfig = (
+  req: http.IncomingMessage,
+  options: HttpIngestRuntime,
+): { config: GuckConfig; storeDir: string } => {
+  const configPath =
+    readHeader(req, "x-guck-config-path") ?? readHeader(req, "x-guck-cwd");
+  if (!configPath) {
+    return { config: options.config, storeDir: options.storeDir };
+  }
+  const { config, rootDir } = loadConfig({ configPath });
+  return { config, storeDir: resolveStoreDir(config, rootDir) };
+};
 
 const normalizeLevel = (level?: string): GuckEvent["level"] => {
   if (!level) {
@@ -152,7 +184,9 @@ export const startHttpIngest = async (options: HttpIngestRuntime): Promise<HttpI
       return;
     }
 
-    if (!options.config.enabled) {
+    const { config, storeDir } = resolveRequestConfig(req, options);
+
+    if (!config.enabled) {
       writeJson(res, 403, { ok: false, error: "Guck disabled" });
       return;
     }
@@ -186,10 +220,10 @@ export const startHttpIngest = async (options: HttpIngestRuntime): Promise<HttpI
     try {
       for (const item of items) {
         const event = toEvent(item as Partial<GuckEvent>, {
-          service: options.config.default_service,
+          service: config.default_service,
         });
-        const redacted = redactEvent(options.config, event);
-        await appendEvent(options.storeDir, redacted);
+        const redacted = redactEvent(config, event);
+        await appendEvent(storeDir, redacted);
       }
     } catch (error) {
       writeJson(res, 500, { ok: false, error: "Failed to write event" });
