@@ -509,6 +509,23 @@ export const createK8sBackend = (config: GuckK8sReadBackendConfig): ReadBackend 
     if (cachedEksConfig !== undefined) {
       return cachedEksConfig;
     }
+    if (config.auth?.type === "eks") {
+      const parsed = parseAwsEksExec(getCurrentUser(kc)?.exec);
+      const clusterName =
+        config.auth.cluster ?? config.clusterName ?? parsed?.clusterName;
+      const region = config.auth.region ?? config.region ?? parsed?.region;
+      if (!clusterName || !region) {
+        throw new Error(
+          "Kubernetes EKS auth requires cluster name and region. Set read.backends[].auth.cluster/read.backends[].auth.region or configure aws eks exec args.",
+        );
+      }
+      cachedEksConfig = {
+        clusterName,
+        region,
+        profile: config.auth.profile ?? config.profile,
+      };
+      return cachedEksConfig;
+    }
     if (config.clusterName && config.region) {
       cachedEksConfig = {
         clusterName: config.clusterName,

@@ -70,6 +70,13 @@ export type GuckCloudWatchReadBackendConfig = {
   service?: string;
 };
 
+export type GuckK8sAuthConfig = {
+  type: "eks";
+  cluster?: string;
+  region?: string;
+  profile?: string;
+};
+
 export type GuckK8sReadBackendConfig = {
   type: "k8s";
   id?: string;
@@ -81,6 +88,7 @@ export type GuckK8sReadBackendConfig = {
   clusterName?: string;
   region?: string;
   profile?: string;
+  auth?: GuckK8sAuthConfig;
 };
 
 export type GuckReadBackendConfig =
