@@ -87,18 +87,31 @@ for (const testCase of cases) {
       ...testCase.env,
     };
 
+    const configuredStore =
+      testCase.expect_store_dir || env.GUCK_DIR || path.join(os.homedir(), ".guck", "logs");
+    const storeDir = path.isAbsolute(configuredStore)
+      ? configuredStore
+      : path.join(path.dirname(configPath), configuredStore);
+    const resolvedStoreDir = path.resolve(storeDir);
+    const tempRoot = path.resolve(tempDir);
+    const osTmp = path.resolve(os.tmpdir());
+    const safeRoots = [tempRoot, osTmp];
+    if (path.sep === "/") {
+      safeRoots.push("/tmp", "/private/tmp", "/var/tmp");
+    }
+    const isSafe = safeRoots.some(
+      (root) => resolvedStoreDir === root || resolvedStoreDir.startsWith(`${root}${path.sep}`),
+    );
+    if (isSafe) {
+      fs.rmSync(resolvedStoreDir, { recursive: true, force: true });
+    }
+
     const result = spawnSync(process.execPath, [workerPath], {
       env,
       stdio: "inherit",
     });
 
     assert.equal(result.status, 0, "worker should exit cleanly");
-
-    const configuredStore =
-      testCase.expect_store_dir || env.GUCK_DIR || path.join(os.homedir(), ".guck", "logs");
-    const storeDir = path.isAbsolute(configuredStore)
-      ? configuredStore
-      : path.join(path.dirname(configPath), configuredStore);
 
     if (testCase.expect_no_write) {
       const files = collectJsonlFiles(storeDir);
