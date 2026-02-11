@@ -184,7 +184,7 @@ const formatUrl = (request: {
 };
 
 export const fetchEksClusterInfo = async (
-  options: Pick<EksAuthOptions, "clusterName" | "region" | "profile" | "credentials">,
+  options: Pick<EksAuthOptions, "clusterName" | "region" | "profile" | "roleArn" | "credentials">,
 ): Promise<EksClusterInfo> => {
   const { EKSClient, DescribeClusterCommand } = loadEksSdk();
   const resolvedCredentials = resolveCredentials(
