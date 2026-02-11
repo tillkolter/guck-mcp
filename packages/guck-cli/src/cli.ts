@@ -428,10 +428,13 @@ const handleUpgrade = async (argv: string[]): Promise<number> => {
   const { opts } = parseArgs(argv);
   const beforeVersion = loadVersion();
   let entryPath: string | null = null;
-  try {
-    entryPath = fs.realpathSync(process.argv[1]);
-  } catch {
-    entryPath = process.argv[1] ?? null;
+  const argvPath = process.argv[1];
+  if (argvPath) {
+    try {
+      entryPath = fs.realpathSync(argvPath);
+    } catch {
+      entryPath = argvPath;
+    }
   }
 
   const explicitManager = opts.manager ? parsePackageManager(opts.manager) : null;
