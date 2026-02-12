@@ -73,7 +73,7 @@ test("writes events to the store dir", async (t) => {
     JSON.stringify(
       {
         enabled: true,
-        default_service: "web-ui",
+        default_service: "web",
         sdk: { enabled: true, capture_stdout: true, capture_stderr: true },
       },
       null,
@@ -99,7 +99,7 @@ test("writes events to the store dir", async (t) => {
     const content = fs.readFileSync(files[0], "utf8").trim();
     const event = JSON.parse(content.split(/\r?\n/)[0]);
     assert.equal(event.message, "hello");
-    assert.equal(event.service, "web-ui");
+    assert.equal(event.service, "web");
     assert.equal(typeof event.run_id, "string");
   });
 });

@@ -17,18 +17,18 @@ test("k8s JSON maps timestamp, level, message", () => {
   const message = JSON.stringify({
     timestamp: "2026-02-11T01:00:14.456Z",
     level: "warn",
-    message: "debater-a avatar session failed",
+    message: "user session failed",
     pid: 47420,
-    context: "debate-room",
+    context: "worker",
   });
   const event = toEvent(baseConfig, message, baseTs, "pod-1", "container-1");
   assert.equal(event.ts, "2026-02-11T01:00:14.456Z");
   assert.equal(event.level, "warn");
-  assert.equal(event.message, "debater-a avatar session failed");
+  assert.equal(event.message, "user session failed");
   assert.equal(event.service, "svc");
   assert.equal(event.run_id, "pod-1");
   assert.equal(event.data?.pid, 47420);
-  assert.equal(event.data?.context, "debate-room");
+  assert.equal(event.data?.context, "worker");
   assert.equal(event.data?.timestamp, "2026-02-11T01:00:14.456Z");
   assert.equal(event.data?.pod, "pod-1");
   assert.equal(event.data?.container, "container-1");
@@ -39,13 +39,13 @@ test("k8s JSON maps severity and msg", () => {
   const message = JSON.stringify({
     time: "2026-02-11T01:00:14.332Z",
     severity: "error",
-    msg: "LiveAvatar API request failed",
+    msg: "upstream API request failed",
     meta: ["detail"],
   });
   const event = toEvent(baseConfig, message, baseTs, "pod-2", "container-2");
   assert.equal(event.ts, "2026-02-11T01:00:14.332Z");
   assert.equal(event.level, "error");
-  assert.equal(event.message, "LiveAvatar API request failed");
+  assert.equal(event.message, "upstream API request failed");
   assert.deepEqual(event.data?.meta, ["detail"]);
   assert.equal(event.data?.time, "2026-02-11T01:00:14.332Z");
   assert.equal(event.data?.pod, "pod-2");
