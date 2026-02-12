@@ -14,7 +14,7 @@ test("emit sends defaults", async () => {
   const client = createBrowserClient({
     endpoint: "http://localhost/guck",
     service: "svc",
-    sessionId: "sess-1",
+    sessionId: "session-001",
     fetch: createFetchStub(events),
   });
 
@@ -25,7 +25,7 @@ test("emit sends defaults", async () => {
   assert.equal(request.url, "http://localhost/guck");
   const body = JSON.parse(request.init.body);
   assert.equal(body.service, "svc");
-  assert.equal(body.session_id, "sess-1");
+  assert.equal(body.session_id, "session-001");
   assert.equal(body.type, "log");
   assert.equal(body.level, "info");
   assert.equal(body.message, "hello");

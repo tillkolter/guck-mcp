@@ -110,7 +110,7 @@ emit({"message": "hello from python"})
   "version": 1,
   "enabled": true,
   "store_dir": "logs/guck",
-  "default_service": "my-service"
+  "default_service": "api"
 }
 ```
 
@@ -123,7 +123,7 @@ When debugging, use Guck telemetry first (guck.stats → guck.search; tail only 
 3) Run:
 
 ```sh
-guck wrap --service my-service --session dev-1 -- <your command>
+guck wrap --service api --session session-001 -- <your command>
 guck mcp
 ```
 
@@ -141,8 +141,8 @@ you a simple way to filter a whole dev run without wiring trace propagation.
 Example:
 
 ```sh
-export GUCK_SESSION_ID=dev-2026-02-10
-guck wrap --service api --session dev-2026-02-10 -- pnpm run dev
+export GUCK_SESSION_ID=session-001
+guck wrap --service api --session session-001 -- pnpm run dev
 ```
 
 ## Config
@@ -169,7 +169,7 @@ Example shared config:
 {
   "version": 1,
   "enabled": true,
-  "store_dir": "/Users/you/.guck/logs"
+  "store_dir": "/path/to/guck/logs"
 }
 ```
 
@@ -177,7 +177,7 @@ Then set:
 
 ```sh
 export GUCK_CONFIG_PATH=/path/to/shared/.guck.json
-export GUCK_SESSION_ID=dev-2026-02-10
+export GUCK_SESSION_ID=session-001
 ```
 
 ```json
@@ -185,7 +185,7 @@ export GUCK_SESSION_ID=dev-2026-02-10
   "version": 1,
   "enabled": true,
   "store_dir": "logs/guck",
-  "default_service": "my-service",
+  "default_service": "api",
   "redaction": {
     "enabled": true,
     "keys": ["authorization","api_key","token","secret","password"],
@@ -233,8 +233,8 @@ import { createBrowserClient } from "@guckdev/browser";
 
 const client = createBrowserClient({
   endpoint: "http://localhost:7331/guck/emit",
-  service: "web-ui",
-  sessionId: "dev-1",
+  service: "web",
+  sessionId: "session-001",
 });
 
 await client.emit({ message: "hello from the browser" });
@@ -305,9 +305,9 @@ Each line in the log is a single JSON event:
   "ts": "2026-02-08T18:40:00.123Z",
   "level": "info",
   "type": "log",
-  "service": "debate-room",
+  "service": "worker",
   "run_id": "uuid",
-  "session_id": "room-123",
+  "session_id": "session-123",
   "message": "speaker started",
   "data": { "turnId": 3 },
   "tags": { "env": "local" },

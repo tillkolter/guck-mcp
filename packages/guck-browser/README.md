@@ -23,8 +23,8 @@ import { createBrowserClient } from "@guckdev/browser";
 
 const client = createBrowserClient({
   endpoint: "/guck/emit",
-  service: "web-ui",
-  sessionId: "dev-1",
+  service: "web",
+  sessionId: "session-001",
 });
 
 await client.emit({ message: "hello from the browser" });
@@ -39,8 +39,8 @@ if (import.meta.env.DEV) {
   const { createBrowserClient } = await import("@guckdev/browser");
   const client = createBrowserClient({
     endpoint: "/guck/emit",
-    service: "playground",
-    sessionId: "dev-1",
+    service: "sandbox",
+    sessionId: "session-001",
   });
   client.installAutoCapture();
 }

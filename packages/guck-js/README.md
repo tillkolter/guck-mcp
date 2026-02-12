@@ -14,7 +14,7 @@ For the CLI (`guck ...`), use `@guckdev/cli`.
 
 ```sh
 guck init
-guck wrap --service debate-room --session room-123 -- pnpm run dev
+guck wrap --service worker --session session-123 -- pnpm run dev
 # in another terminal
 guck mcp
 ```

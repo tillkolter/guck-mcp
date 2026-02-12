@@ -2,12 +2,12 @@
   {
     "name": "defaults",
     "env": {
-      "GUCK_RUN_ID": "run-111"
+      "GUCK_RUN_ID": "run-001"
     },
     "config": {
       "version": 1,
       "enabled": true,
-      "default_service": "svc-default",
+      "default_service": "service-default",
       "redaction": {
         "enabled": true,
         "keys": ["authorization", "api_key", "token", "secret", "password"],
@@ -22,8 +22,8 @@
     "expect": {
       "level": "info",
       "type": "log",
-      "service": "svc-default",
-      "run_id": "run-111",
+      "service": "service-default",
+      "run_id": "run-001",
       "source": { "kind": "sdk" }
     },
     "expect_missing": ["session_id", "message", "data", "tags", "trace_id", "span_id"],
@@ -32,13 +32,13 @@
   {
     "name": "invalid-level-and-session-env",
     "env": {
-      "GUCK_RUN_ID": "run-222",
-      "GUCK_SESSION_ID": "sess-1"
+      "GUCK_RUN_ID": "run-002",
+      "GUCK_SESSION_ID": "session-001"
     },
     "config": {
       "version": 1,
       "enabled": true,
-      "default_service": "svc-default",
+      "default_service": "service-default",
       "redaction": {
         "enabled": true,
         "keys": ["authorization", "api_key", "token", "secret", "password"],
@@ -56,9 +56,9 @@
     "expect": {
       "level": "info",
       "type": "log",
-      "service": "svc-default",
-      "run_id": "run-222",
-      "session_id": "sess-1",
+      "service": "service-default",
+      "run_id": "run-002",
+      "session_id": "session-001",
       "message": "hello",
       "source": { "kind": "sdk" }
     },
@@ -68,13 +68,13 @@
   {
     "name": "service-env-override",
     "env": {
-      "GUCK_RUN_ID": "run-333",
+      "GUCK_RUN_ID": "run-003",
       "GUCK_SERVICE": "env-service"
     },
     "config": {
       "version": 1,
       "enabled": true,
-      "default_service": "cfg-service",
+      "default_service": "config-service",
       "redaction": {
         "enabled": true,
         "keys": ["authorization", "api_key", "token", "secret", "password"],
@@ -92,7 +92,7 @@
       "level": "info",
       "type": "log",
       "service": "env-service",
-      "run_id": "run-333",
+      "run_id": "run-003",
       "message": "hi",
       "source": { "kind": "sdk" }
     },
@@ -102,12 +102,12 @@
   {
     "name": "redaction",
     "env": {
-      "GUCK_RUN_ID": "run-444"
+      "GUCK_RUN_ID": "run-004"
     },
     "config": {
       "version": 1,
       "enabled": true,
-      "default_service": "svc-default",
+      "default_service": "service-default",
       "redaction": {
         "enabled": true,
         "keys": ["token", "api_key", "password"],
@@ -132,8 +132,8 @@
     "expect": {
       "level": "info",
       "type": "log",
-      "service": "svc-default",
-      "run_id": "run-444",
+      "service": "service-default",
+      "run_id": "run-004",
       "message": "token=abc [REDACTED]",
       "data": {
         "token": "[REDACTED]",
@@ -151,12 +151,12 @@
   {
     "name": "disabled",
     "env": {
-      "GUCK_RUN_ID": "run-555"
+      "GUCK_RUN_ID": "run-005"
     },
     "config": {
       "version": 1,
       "enabled": false,
-      "default_service": "svc-default",
+      "default_service": "service-default",
       "redaction": {
         "enabled": true,
         "keys": ["authorization", "api_key", "token", "secret", "password"],
@@ -175,13 +175,13 @@
   {
     "name": "store-dir-override",
     "env": {
-      "GUCK_RUN_ID": "run-666",
+      "GUCK_RUN_ID": "run-006",
       "GUCK_DIR": "/tmp/guck-custom-store"
     },
     "config": {
       "version": 1,
       "enabled": true,
-      "default_service": "svc-default",
+      "default_service": "service-default",
       "redaction": {
         "enabled": true,
         "keys": ["authorization", "api_key", "token", "secret", "password"],
@@ -198,8 +198,8 @@
     "expect": {
       "level": "info",
       "type": "log",
-      "service": "svc-default",
-      "run_id": "run-666",
+      "service": "service-default",
+      "run_id": "run-006",
       "message": "custom store",
       "source": { "kind": "sdk" }
     },
