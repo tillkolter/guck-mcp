@@ -184,7 +184,9 @@ export const loadConfig = (options: LoadConfigOptions = {}): LoadedConfig => {
   };
 };
 
-export const resolveStoreDir = (): string => {
+export const resolveStoreDir = (_config?: GuckConfig, _rootDir?: string): string => {
+  void _config;
+  void _rootDir;
   return process.env.GUCK_DIR ?? DEFAULT_STORE_DIR;
 };
 
