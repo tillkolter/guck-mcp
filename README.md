@@ -1,5 +1,5 @@
 # Guck
-*German “guck!” — “take a peek”.*
+*German “guck!” — “take a peek”.* 👀
 
 Guck is a tiny, MCP-first telemetry store for agentic debugging. It captures
 JSONL telemetry events, stores them locally, and exposes a minimal MCP toolset
