@@ -160,11 +160,17 @@ export const loadConfig = (options: LoadConfigOptions = {}): LoadedConfig => {
   }
   const configExists = isDirOrFile(configPath);
   const configJson = configExists ? readJsonFile(configPath) : null;
+  const localConfigPath = path.join(rootDir, ".guck.local.json");
+  const localConfigExists = isDirOrFile(localConfigPath);
+  const localConfigJson = localConfigExists ? readJsonFile(localConfigPath) : null;
 
   let config = DEFAULT_CONFIG;
 
   if (configJson && typeof configJson === "object") {
     config = mergeConfig(config, configJson as Partial<GuckConfig>);
+  }
+  if (localConfigJson && typeof localConfigJson === "object") {
+    config = mergeConfig(config, localConfigJson as Partial<GuckConfig>);
   }
 
   const envEnabled = parseBool(process.env.GUCK_ENABLED);
@@ -179,7 +185,7 @@ export const loadConfig = (options: LoadConfigOptions = {}): LoadedConfig => {
   return {
     rootDir,
     configPath: configExists ? configPath : undefined,
-    localConfigPath: undefined,
+    localConfigPath: localConfigExists ? localConfigPath : undefined,
     config,
   };
 };

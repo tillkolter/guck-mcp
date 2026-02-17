@@ -102,25 +102,41 @@ emit({"message": "hello from python"})
 
 ## Best practice (copy-paste)
 
-1) Add local config (ignored by git):
+1) Add shared config (commit this):
 
-`.guck.json`
+`.guck.json` (committed)
 ```json
 {
   "version": 1,
   "enabled": true,
   "store_dir": "logs/guck",
-  "default_service": "api"
+  "default_service": "api",
+  "read": {
+    "backend": "multi",
+    "backends": [
+      { "type": "local" },
+      { "type": "k8s", "id": "k8s-dev", "namespace": "default", "selector": "app=api" }
+    ]
+  }
 }
 ```
 
-2) Add one line to AGENTS.md:
+2) (Optional) Add local overrides (ignored by git):
+
+`.guck.local.json`
+```json
+{
+  "enabled": false
+}
+```
+
+3) Add one line to AGENTS.md:
 
 ```
 When debugging, use Guck telemetry first (guck.stats → guck.search; tail only if asked).
 ```
 
-3) Run:
+4) Run:
 
 ```sh
 guck wrap --service api --session session-001 -- <your command>
@@ -147,7 +163,11 @@ guck wrap --service api --session session-001 -- pnpm run dev
 
 ## Config
 
-Guck reads `.guck.json` from your repo root.
+Guck reads `.guck.json` from your repo root. If `.guck.local.json` exists in the
+same directory, it is merged on top, then environment variables apply last.
+
+Merge order:
+defaults → `.guck.json` → `.guck.local.json` → env overrides.
 
 Guck is **enabled by default** using built-in defaults. Add a `.guck.json` or
 set `GUCK_CONFIG_PATH` to override settings. You can also set `"enabled": false`
@@ -155,6 +175,7 @@ inside the config to turn it off explicitly.
 
 For MCP usage across multiple repos, each tool accepts an optional
 `config_path` parameter to point at a specific `.guck.json`.
+Local overrides are resolved in the same directory as the resolved config path.
 
 ### Multi-service or multi-repo tracing (shared store)
 

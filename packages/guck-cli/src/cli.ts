@@ -20,7 +20,7 @@ const CLI_PACKAGE = "@guckdev/cli";
 
 const printHelp = (): void => {
   console.log(
-    `Guck - MCP-first telemetry\n\nCommands:\n  init                 Create .guck.json and .guck.local.json\n  checkpoint           Write a .guck-checkpoint epoch timestamp\n  wrap --service <s> --session <id> -- <cmd...>\n                       Capture stdout/stderr and write JSONL\n  emit --service <s> --session <id>\n                       Read JSON events from stdin and append\n  mcp                  Start MCP server\n  upgrade [--manager <npm|pnpm|yarn|bun>]\n                       Update the @guckdev/cli install\n\nOptions:\n  --version, -v        Print version\n`,
+    `Guck - MCP-first telemetry\n\nCommands:\n  init                 Create .guck.json (and update .gitignore)\n  checkpoint           Write a .guck-checkpoint epoch timestamp\n  wrap --service <s> --session <id> -- <cmd...>\n                       Capture stdout/stderr and write JSONL\n  emit --service <s> --session <id>\n                       Read JSON events from stdin and append\n  mcp                  Start MCP server\n  upgrade [--manager <npm|pnpm|yarn|bun>]\n                       Update the @guckdev/cli install\n\nOptions:\n  --version, -v        Print version\n`,
   );
 };
 
@@ -251,6 +251,8 @@ const parseArgs = (argv: string[]) => {
 
 const writeInitFiles = (rootDir: string): void => {
   const configPath = path.join(rootDir, ".guck.json");
+  const gitignorePath = path.join(rootDir, ".gitignore");
+  const localIgnoreEntry = ".guck.local.json";
   const defaultConfig = getDefaultConfig();
   const repoName = path.basename(rootDir);
   const seededConfig = {
@@ -263,6 +265,20 @@ const writeInitFiles = (rootDir: string): void => {
     console.log(`Created ${configPath}`);
   } else {
     console.log(`Config already exists: ${configPath}`);
+  }
+
+  if (fs.existsSync(gitignorePath)) {
+    const rawGitignore = fs.readFileSync(gitignorePath, "utf8");
+    const hasEntry = rawGitignore
+      .split(/\r?\n/)
+      .some((line) => line.trim() === localIgnoreEntry);
+    if (!hasEntry) {
+      const needsNewline = rawGitignore.length > 0 && !rawGitignore.endsWith("\n");
+      const nextGitignore =
+        rawGitignore + (needsNewline ? "\n" : "") + `${localIgnoreEntry}\n`;
+      fs.writeFileSync(gitignorePath, nextGitignore, "utf8");
+      console.log(`Updated ${gitignorePath}`);
+    }
   }
 };
 

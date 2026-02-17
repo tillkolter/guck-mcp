@@ -34,3 +34,39 @@ test("loadConfig resolves relative config_path against cwd", () => {
   assert.equal(rootDir, configDir);
   assert.equal(resolveStoreDir(config, rootDir), path.join(os.homedir(), ".guck", "logs"));
 });
+
+test("loadConfig merges .guck.local.json on top of .guck.json", () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "guck-config-local-"));
+  const configPath = path.join(tempDir, ".guck.json");
+  const localConfigPath = path.join(tempDir, ".guck.local.json");
+  writeConfig(configPath, { default_service: "base" });
+  writeConfig(localConfigPath, { default_service: "local" });
+
+  const { rootDir, config, localConfigPath: resolvedLocalPath } = loadConfig({
+    configPath: tempDir,
+  });
+  assert.equal(rootDir, tempDir);
+  assert.equal(config.default_service, "local");
+  assert.equal(resolvedLocalPath, localConfigPath);
+});
+
+test("env overrides win over .guck.local.json", () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "guck-config-env-"));
+  const configPath = path.join(tempDir, ".guck.json");
+  const localConfigPath = path.join(tempDir, ".guck.local.json");
+  writeConfig(configPath, {});
+  writeConfig(localConfigPath, { enabled: true });
+
+  const prevEnabled = process.env.GUCK_ENABLED;
+  process.env.GUCK_ENABLED = "false";
+  try {
+    const { config } = loadConfig({ configPath: tempDir });
+    assert.equal(config.enabled, false);
+  } finally {
+    if (prevEnabled === undefined) {
+      delete process.env.GUCK_ENABLED;
+    } else {
+      process.env.GUCK_ENABLED = prevEnabled;
+    }
+  }
+});

@@ -5,4 +5,5 @@ logs/
 .codex/
 .hunch.json
 .hunch.local.json
+.guck.local.json
 .DS_Store
