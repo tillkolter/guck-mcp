@@ -128,10 +128,17 @@ def load_config(*, cwd: str | None = None, config_path: str | None = None) -> Lo
         resolved_config_path = Path(root_dir) / ".guck.json"
     config_exists = _is_dir_or_file(resolved_config_path)
     config_json = _read_json_file(resolved_config_path) if config_exists else None
+    local_config_path = Path(root_dir) / ".guck.local.json"
+    local_config_exists = _is_dir_or_file(local_config_path)
+    local_config_json = (
+        _read_json_file(local_config_path) if local_config_exists else None
+    )
 
     config: GuckConfig = DEFAULT_CONFIG
     if config_json:
         config = _merge_config(config, config_json)
+    if local_config_json:
+        config = _merge_config(config, local_config_json)
 
     env_enabled = _parse_bool(os.environ.get("GUCK_ENABLED"))
     if env_enabled is not None:
@@ -143,7 +150,7 @@ def load_config(*, cwd: str | None = None, config_path: str | None = None) -> Lo
     return {
         "root_dir": root_dir,
         "config_path": str(resolved_config_path) if config_exists else None,
-        "local_config_path": None,
+        "local_config_path": str(local_config_path) if local_config_exists else None,
         "config": config,
     }
 
