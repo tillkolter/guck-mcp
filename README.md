@@ -1,8 +1,11 @@
-# Guck
+# guck
+*German “guck!” — “take a peek”.* 👀
 
-Guck is a tiny, MCP-first telemetry store for agentic debugging. It provides
-token-efficient log analytics by capturing JSONL telemetry events and exposing
-a minimal MCP toolset for fast, filtered queries.
+Guck is a tiny, MCP-first telemetry store for agentic debugging. It captures
+JSONL telemetry events, stores them locally, and exposes a minimal MCP toolset
+(`guck.stats`, `guck.search`, etc.) for fast, filtered queries instead of noisy
+tailing. The goal is to make LLM/agent debugging token-efficient, repeatable,
+and low-noise across languages and runtimes.
 
 Guck is designed to be:
 - **Language-agnostic**: emit JSONL from any runtime
