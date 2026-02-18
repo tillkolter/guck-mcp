@@ -33,10 +33,11 @@ handle.stop()
 
 ## Config
 
-The SDK reads `.guck.json` in your repo root and honors the same environment
-variables as the JS SDK:
+The SDK reads `.guck.json` in your repo root. If present, `.guck.local.json` is
+merged on top for per-dev overrides. It honors the same environment variables
+as the JS SDK:
 
-- `GUCK_CONFIG_PATH`
+- `GUCK_CONFIG_PATH` (or `GUCK_CONFIG`)
 - `GUCK_DIR`
 - `GUCK_ENABLED`
 - `GUCK_SERVICE`

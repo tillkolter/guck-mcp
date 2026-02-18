@@ -1,11 +1,8 @@
-# guck
-*German “guck!” — “take a peek”.* 👀
+# Guck
 
-Guck is a tiny, MCP-first telemetry store for agentic debugging. It captures
-JSONL telemetry events, stores them locally, and exposes a minimal MCP toolset
-(`guck.stats`, `guck.search`, etc.) for fast, filtered queries instead of noisy
-tailing. The goal is to make LLM/agent debugging token-efficient, repeatable,
-and low-noise across languages and runtimes.
+Guck is a tiny, MCP-first telemetry store for agentic debugging. It provides
+token-efficient log analytics by capturing JSONL telemetry events and exposing
+a minimal MCP toolset for fast, filtered queries.
 
 Guck is designed to be:
 - **Language-agnostic**: emit JSONL from any runtime
@@ -105,41 +102,27 @@ emit({"message": "hello from python"})
 
 ## Best practice (copy-paste)
 
-1) Add shared config (commit this):
+1) Add shared config (commit to repo):
 
-`.guck.json` (committed)
+`.guck.json`
 ```json
 {
   "version": 1,
   "enabled": true,
-  "store_dir": "logs/guck",
-  "default_service": "api",
-  "read": {
-    "backend": "multi",
-    "backends": [
-      { "type": "local" },
-      { "type": "k8s", "id": "k8s-dev", "namespace": "default", "selector": "app=api" }
-    ]
-  }
+  "default_service": "api"
 }
 ```
 
-2) (Optional) Add local overrides (ignored by git):
+Optional: add `.guck.local.json` for per-dev overrides (ignored by git).
+You can run `guck init` to scaffold `.guck.json`.
 
-`.guck.local.json`
-```json
-{
-  "enabled": false
-}
-```
-
-3) Add one line to AGENTS.md:
+2) Add one line to AGENTS.md:
 
 ```
 When debugging, use Guck telemetry first (guck.stats → guck.search; tail only if asked).
 ```
 
-4) Run:
+3) Run:
 
 ```sh
 guck wrap --service api --session session-001 -- <your command>
@@ -166,26 +149,32 @@ guck wrap --service api --session session-001 -- pnpm run dev
 
 ## Config
 
-Guck reads `.guck.json` from your repo root. If `.guck.local.json` exists in the
-same directory, it is merged on top, then environment variables apply last.
+Guck reads `.guck.json` from your repo root. If present, `.guck.local.json` is
+merged on top for per-dev overrides.
 
-Merge order:
-defaults → `.guck.json` → `.guck.local.json` → env overrides.
-
-Guck is **enabled by default** using built-in defaults. Add a `.guck.json` or
-set `GUCK_CONFIG_PATH` to override settings. You can also set `"enabled": false`
+Guck is **enabled by default** using built-in defaults. Add a `.guck.json` (and
+optional `.guck.local.json`) or set `GUCK_CONFIG_PATH` (or `GUCK_CONFIG`) to
+point at a config file or repo directory. You can also set `"enabled": false`
 inside the config to turn it off explicitly.
 
 For MCP usage across multiple repos, each tool accepts an optional
 `config_path` parameter to point at a specific `.guck.json`.
-Local overrides are resolved in the same directory as the resolved config path.
 
 ### Multi-service or multi-repo tracing (shared store)
 
 To trace across local microservices (or multiple repos), point every service
-at the same **absolute** `store_dir`. This creates a single shared log store
-that `guck.search` can query across. Use a shared `GUCK_SESSION_ID` to
+at the same **absolute** log directory via `GUCK_DIR`. This creates a single
+shared log store that `guck.search` can query across. Use a shared `GUCK_SESSION_ID` to
 correlate events and distinct `service` names to separate sources.
+
+Example shared env:
+
+```sh
+export GUCK_DIR=/path/to/guck/logs
+export GUCK_SESSION_ID=session-001
+# optional: share a single config across repos
+export GUCK_CONFIG_PATH=/path/to/shared/.guck.json
+```
 
 Example shared config:
 
@@ -193,22 +182,6 @@ Example shared config:
 {
   "version": 1,
   "enabled": true,
-  "store_dir": "/path/to/guck/logs"
-}
-```
-
-Then set:
-
-```sh
-export GUCK_CONFIG_PATH=/path/to/shared/.guck.json
-export GUCK_SESSION_ID=session-001
-```
-
-```json
-{
-  "version": 1,
-  "enabled": true,
-  "store_dir": "logs/guck",
   "default_service": "api",
   "redaction": {
     "enabled": true,
@@ -220,38 +193,6 @@ export GUCK_SESSION_ID=session-001
 ```
 
 Remote backends (CloudWatch/K8s) require optional SDK installs; install only if you use them.
-
-### Read backends (local + remote)
-
-By default, Guck reads from the local store (`"read": { "backend": "local" }`).
-To read from multiple sources, set `"read": { "backend": "multi" }` and list
-every backend you want to query under `read.backends`.
-
-Important: once you set `read.backends`, **only** the listed backends are used.
-Local is not implied. If you want local + remote, you must include a `"type": "local"`
-entry alongside your remote backend(s).
-
-Example (local + k8s):
-
-```json
-{
-  "read": {
-    "backend": "multi",
-    "backends": [
-      { "type": "local" },
-      {
-        "type": "k8s",
-        "id": "prod",
-        "namespace": "my-namespace",
-        "selector": "app=my-service"
-      }
-    ]
-  }
-}
-```
-
-If you list only the k8s backend above, Guck will read **only** from k8s and will
-not look at local logs.
 
 ### JS SDK auto-capture (stdout/stderr)
 
@@ -276,11 +217,10 @@ auto-capture intentionally skips to avoid double logging.
 
 ### Browser SDK (console + errors)
 
-Enable the MCP HTTP ingest endpoint:
-
-```sh
-guck mcp --http-port 7331
-```
+Use a dev server endpoint that accepts `/guck/emit` and writes events to the
+local store. In Vite, the `@guckdev/vite` plugin provides this endpoint. For
+other stacks, add a small endpoint that forwards payloads to your server-side
+`emit()`.
 
 Emit browser events:
 
@@ -288,7 +228,7 @@ Emit browser events:
 import { createBrowserClient } from "@guckdev/browser";
 
 const client = createBrowserClient({
-  endpoint: "http://localhost:7331/guck/emit",
+  endpoint: "/guck/emit",
   service: "web",
   sessionId: "session-001",
 });
@@ -307,23 +247,6 @@ console.error("boom");
 stop();
 ```
 
-HTTP ingest config (optional defaults shown):
-
-```json
-{
-  "mcp": {
-    "max_results": 200,
-    "max_output_chars": 20000,
-    "default_lookback_ms": 300000,
-    "http": {
-      "host": "127.0.0.1",
-      "path": "/guck/emit",
-      "max_body_bytes": 512000
-    }
-  }
-}
-```
-
 Notes:
 - `installAutoCapture()` should usually be called once at app startup; repeated calls will wrap console multiple times.
 - If you install it inside a component or test, call `stop()` on cleanup to avoid duplicate logging.
@@ -331,21 +254,18 @@ Notes:
 - There is no prebuilt UMD/IIFE bundle yet; for vanilla JS you should use a bundler or a native ESM import.
 
 ### Environment overrides
-- `GUCK_CONFIG_PATH` — explicit config path
-- `GUCK_DIR` — store dir override
+- `GUCK_CONFIG_PATH` — explicit config path (file or repo dir)
+- `GUCK_CONFIG` — alias of `GUCK_CONFIG_PATH`
+- `GUCK_DIR` — store dir override (default: `~/.guck/logs`)
 - `GUCK_ENABLED` — true/false
 - `GUCK_SERVICE` — service name
 - `GUCK_SESSION_ID` — session override
 - `GUCK_RUN_ID` — run id override
-- `GUCK_MCP_HTTP_PORT` — enable HTTP ingest on this port
-- `GUCK_MCP_HTTP_HOST` — HTTP ingest host override
-- `GUCK_MCP_HTTP_PATH` — HTTP ingest path override
-- `GUCK_MCP_HTTP_MAX_BODY_BYTES` — max ingest request size
 
 ### Checkpoint
 
 `guck checkpoint` writes a `.guck-checkpoint` file in the root of your
-`store_dir` (the log folder) containing an epoch millisecond timestamp. When
+store dir (`GUCK_DIR` or `~/.guck/logs`) containing an epoch millisecond timestamp. When
 MCP tools are called without `since`, Guck uses the checkpoint timestamp as
 the default time window. You
 can also pass `since: "checkpoint"` to explicitly anchor a query to the
@@ -375,11 +295,13 @@ Each line in the log is a single JSON event:
 
 ## Store layout
 
-By default, Guck writes per-run JSONL files:
+By default, Guck writes per-run JSONL files under `~/.guck/logs`:
 
 ```
-logs/guck/<service>/<YYYY-MM-DD>/<run_id>.jsonl
+~/.guck/logs/<service>/<YYYY-MM-DD>/<run_id>.jsonl
 ```
+
+Set `GUCK_DIR` to override the root.
 
 ## Minimal CLI
 
@@ -391,6 +313,7 @@ telemetry; filtering is MCP-first.
 - `guck wrap --service <name> --session <id> -- <cmd...>` — capture stdout/stderr
 - `guck emit --service <name> --session <id>` — append JSON events from stdin
 - `guck mcp` — start MCP server
+- `guck upgrade [--manager <npm|pnpm|yarn|bun>]` — update the CLI install
 
 ## MCP tools
 
@@ -428,35 +351,6 @@ Examples:
 { "format": "json", "fields": ["ts", "data.rawPeak"], "flatten": true }
 ```
 
-Compact syntax (short keys; canonical fields override compact values):
-
-- `s` → `service`
-- `sid` → `session_id`
-- `rid` → `run_id`
-- `ty` → `types`
-- `lv` → `levels`
-- `cn` → `contains`
-- `q` → `query`
-- `since` → `since`
-- `until` → `until`
-- `lim` → `limit`
-- `fmt` → `format`
-- `flds` → `fields`
-- `tpl` → `template`
-- `b` → `backends`
-- `cfg` → `config_path`
-
-When `compact` is present, defaults apply:
-
-- `format` → `text` (if missing)
-- `template` → `{ts}|{service}|{message}` (if `format` resolves to `text` and `template` is missing)
-
-Compact example:
-
-```json
-{ "compact": { "s": "api", "q": "timeout", "since": "15m" } }
-```
-
 Batch search:
 
 ```json
@@ -468,28 +362,10 @@ Batch search:
 }
 ```
 
-Batch search with compact + common defaults:
-
-```json
-{
-  "common": { "compact": { "since": "15m", "fmt": "text" } },
-  "searches": [
-    { "id": "errors", "compact": { "q": "error" } },
-    { "id": "warnings", "compact": { "lv": ["warn"] } }
-  ]
-}
-```
-
 Recommended minimal output for agents:
 
 ```json
 { "format": "text", "template": "{ts}|{service}|{message}" }
-```
-
-Compact minimal output:
-
-```json
-{ "compact": { "q": "error" } }
 ```
 
 ## AI usage guidance
