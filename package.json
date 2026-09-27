@@ -49,7 +49,16 @@
       "@guckdev/core": "workspace:*",
       "@guckdev/mcp": "workspace:*",
       "@guckdev/browser": "workspace:*",
-      "@guckdev/vite": "workspace:*"
+      "@guckdev/vite": "workspace:*",
+      "@hono/node-server": "1.19.13",
+      "ajv@^8.0.0": "8.18.0",
+      "body-parser": "2.3.0",
+      "express-rate-limit": "8.2.2",
+      "fast-uri": "3.1.6",
+      "hono": "4.13.5",
+      "ip-address": "10.3.1",
+      "path-to-regexp": "8.4.0",
+      "qs": "6.16.0"
     }
   }
 }
